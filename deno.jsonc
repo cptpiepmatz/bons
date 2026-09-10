@@ -20,7 +20,7 @@
     "build:backend": {
       "description": "Build the Rust backend",
       "command": "cargo build",
-      "dependencies": ["build:frontend"]
+      "dependencies": ["build:frontend", "db:prepare"]
     },
     "build:frontend": {
       "description": "Build the frontend assets",
@@ -33,7 +33,7 @@
     "db:setup": {
       "description": "Create the database and run migrations",
       "command": "cargo sqlx database setup --source backend/migrations -D sqlite://target/sqlx.sqlite",
-      "dependencies": ["db:version"]
+      "dependencies": ["dir:target", "db:version"]
     },
     "db:prepare": {
       "description": "Prepare SQLx query metadata",
@@ -59,6 +59,10 @@
     "preview": {
       "description": "Preview the production frontend build",
       "command": "deno run -A vite preview --host 127.0.0.1"
+    },
+    "dir:target": {
+      "description": "Ensure the `target` dir is available",
+      "command": "mkdir -p target"
     }
   },
   "imports": {
