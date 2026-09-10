@@ -1,5 +1,6 @@
-target/
+.sqlx/
 dist/
-node_modules/
 frontend/.vite/
+node_modules/
+target/
 bons.sqlite

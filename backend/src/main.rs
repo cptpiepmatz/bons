@@ -4,7 +4,7 @@ mod db;
 
 #[tokio::main]
 async fn main() {
-    // let _db = Db::connect().await.unwrap();
+    let _db = Db::connect().await.unwrap();
 
     // let app = Router::new().route("/", get(|| async { "Hello, World!" }));
 
