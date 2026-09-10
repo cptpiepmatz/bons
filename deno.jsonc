@@ -1,19 +1,21 @@
 {
   "tasks": {
     "dev": "deno task dev:backend & deno task dev:frontend",
-    "dev:frontend": "deno run -A npm:vite@7.1.4 --host 127.0.0.1",
+    "dev:frontend": "deno run -A vite --host 127.0.0.1",
     "dev:backend": "cargo run",
     "build": "deno task build:frontend && deno task build:backend",
-    "build:frontend": "deno run -A npm:vite@7.1.4 build",
+    "build:frontend": "deno run -A vite build",
     "build:backend": "cargo build",
     "check": "deno fmt --check && deno check vite.config.ts frontend/main.ts && cargo fmt --check && cargo check && deno task build:frontend",
-    "fmt": "deno fmt && cargo fmt",
-    "preview": "deno run -A npm:vite@7.1.4 preview --host 127.0.0.1"
+    "fmt": "deno fmt && cargo fmt && deno run -P=tools tools/fmt_sql.ts",
+    "preview": "deno run -A vite preview --host 127.0.0.1"
   },
   "imports": {
+    "@std/fs": "jsr:@std/fs@^1.0.24",
     "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue@6.0.1",
     "bulma": "npm:bulma@1.0.4",
     "sass-embedded": "npm:sass-embedded@1.90.0",
+    "sql-formatter": "npm:sql-formatter@^15.8.2",
     "vite": "npm:vite@7.1.4",
     "vue": "npm:vue@3.5.21"
   },
@@ -23,5 +25,12 @@
   },
   "fmt": {
     "exclude": ["target", "dist", "node_modules"]
+  },
+  "nodeModulesDir": "auto",
+  "permissions": {
+    "tools": {
+      "read": true,
+      "write": true
+    }
   }
 }
