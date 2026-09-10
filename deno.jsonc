@@ -1,37 +1,65 @@
 {
   "tasks": {
     "dev": {
+      "description": "Run frontend and backend development servers",
       "command": "deno task dev:*"
     },
-    "dev:frontend": "deno run -A vite --host 127.0.0.1",
+    "dev:frontend": {
+      "description": "Run the Vite development server",
+      "command": "deno run -A vite --host 127.0.0.1"
+    },
     "dev:backend": {
+      "description": "Prepare the database and run the backend",
       "command": "cargo run",
       "dependencies": ["db:prepare"]
     },
     "build": {
+      "description": "Build the application",
       "dependencies": ["build:backend"]
     },
     "build:backend": {
+      "description": "Build the Rust backend",
       "command": "cargo build",
       "dependencies": ["build:frontend"]
     },
     "build:frontend": {
+      "description": "Build the frontend assets",
       "command": "deno run -A vite build"
     },
-    "db:version": "cargo sqlx --version",
+    "db:version": {
+      "description": "Check that sqlx-cli is installed",
+      "command": "cargo sqlx --version"
+    },
     "db:setup": {
+      "description": "Create the database and run migrations",
       "command": "cargo sqlx database setup --source backend/migrations -D sqlite://target/sqlx.sqlite",
       "dependencies": ["db:version"]
     },
     "db:prepare": {
+      "description": "Prepare SQLx query metadata",
       "command": "cargo sqlx prepare -D sqlite://target/sqlx.sqlite",
       "dependencies": ["db:version", "db:setup"]
     },
-    "fmt": "deno task fmt:*",
-    "fmt:deno": "deno fmt",
-    "fmt:cargo": "cargo fmt",
-    "fmt:sql": "deno run -P=tools tools/fmt_sql.ts",
-    "preview": "deno run -A vite preview --host 127.0.0.1"
+    "fmt": {
+      "description": "Format all project files",
+      "command": "deno task fmt:*"
+    },
+    "fmt:deno": {
+      "description": "Format Deno, frontend, and config files",
+      "command": "deno fmt"
+    },
+    "fmt:cargo": {
+      "description": "Format Rust code",
+      "command": "cargo fmt"
+    },
+    "fmt:sql": {
+      "description": "Format SQL files",
+      "command": "deno run -P=tools tools/fmt_sql.ts"
+    },
+    "preview": {
+      "description": "Preview the production frontend build",
+      "command": "deno run -A vite preview --host 127.0.0.1"
+    }
   },
   "imports": {
     "@std/fs": "jsr:@std/fs@^1.0.24",
