@@ -1,15 +1,10 @@
-use axum::{routing::get, Router};
-use sqlx::sqlite::SqliteConnectOptions;
-use sqlx::{Connection, SqliteConnection};
-use std::str::FromStr;
-
 use crate::db::Db;
 
 mod db;
 
 #[tokio::main]
 async fn main() {
-    let db = Db::connect().await.unwrap();
+    // let _db = Db::connect().await.unwrap();
 
     // let app = Router::new().route("/", get(|| async { "Hello, World!" }));
 

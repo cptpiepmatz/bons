@@ -1,13 +1,36 @@
 {
   "tasks": {
-    "dev": "deno task dev:backend & deno task dev:frontend",
+    "dev": {
+      "command": "deno task dev:*"
+    },
     "dev:frontend": "deno run -A vite --host 127.0.0.1",
-    "dev:backend": "cargo run",
-    "build": "deno task build:frontend && deno task build:backend",
-    "build:frontend": "deno run -A vite build",
-    "build:backend": "cargo build",
-    "check": "deno fmt --check && deno check vite.config.ts frontend/main.ts && cargo fmt --check && cargo check && deno task build:frontend",
-    "fmt": "deno fmt && cargo fmt && deno run -P=tools tools/fmt_sql.ts",
+    "dev:backend": {
+      "command": "cargo run",
+      "dependencies": ["db:prepare"]
+    },
+    "build": {
+      "dependencies": ["build:backend"]
+    },
+    "build:backend": {
+      "command": "cargo build",
+      "dependencies": ["build:frontend"]
+    },
+    "build:frontend": {
+      "command": "deno run -A vite build"
+    },
+    "db:version": "cargo sqlx --version",
+    "db:setup": {
+      "command": "cargo sqlx database setup --source backend/migrations -D sqlite://target/sqlx.sqlite",
+      "dependencies": ["db:version"]
+    },
+    "db:prepare": {
+      "command": "cargo sqlx prepare -D sqlite://target/sqlx.sqlite",
+      "dependencies": ["db:version", "db:setup"]
+    },
+    "fmt": "deno task fmt:*",
+    "fmt:deno": "deno fmt",
+    "fmt:cargo": "cargo fmt",
+    "fmt:sql": "deno run -P=tools tools/fmt_sql.ts",
     "preview": "deno run -A vite preview --host 127.0.0.1"
   },
   "imports": {

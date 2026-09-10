@@ -15,5 +15,6 @@ sqlx = { version = "0.9", default-features = false, features = [
   "runtime-tokio",
   "derive",
   "macros",
-  "chrono"
+  "chrono",
+  "migrate"
 ] }
