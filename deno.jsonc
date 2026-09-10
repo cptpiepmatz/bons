@@ -23,6 +23,5 @@
   },
   "fmt": {
     "exclude": ["target", "dist", "node_modules"]
-  },
-  "nodeModulesDir": "auto"
+  }
 }
