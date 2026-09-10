@@ -3,16 +3,16 @@ CREATE TABLE IF NOT EXISTS users (
   name TEXT NOT NULL,
   is_admin BOOLEAN NOT NULL DEFAULT 0,
   enabled BOOLEAN NOT NULL DEFAULT 1,
-  created_at INTEGER NOT NULL
+  created_at TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS access_tokens (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL,
-  token_hash TEXT NOT NULL UNIQUE,
-  created_at INTEGER NOT NULL,
-  expires_at INTEGER,
-  revoked_at INTEGER,
+  token_hash BLOB NOT NULL UNIQUE,
+  created_at TEXT NOT NULL,
+  expires_at TEXT,
+  revoked_at TEXT,
   FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   id INTEGER PRIMARY KEY,
   token_hash TEXT NOT NULL UNIQUE,
   user_id INTEGER NOT NULL,
-  created_at INTEGER NOT NULL,
-  expires_at INTEGER NOT NULL,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
