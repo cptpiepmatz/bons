@@ -16,19 +16,20 @@ pub struct Db {
 pub struct User {
     id: i64,
     name: String,
+    key_hash: Vec<u8>,
     is_admin: bool,
     enabled: bool,
     created_at: DateTime<Utc>,
 }
 
-pub struct AccessToken<'u> {
-    user: &'u User,
-    token: [u8; 32],
+pub struct CreatedUser {
+    pub user: User,
+    key: [u8; 32],
 }
 
-impl AccessToken<'_> {
-    pub fn token_as_str(&self) -> String {
-        BASE64_URL_SAFE_NO_PAD.encode(self.token)
+impl CreatedUser {
+    pub fn key_as_str(&self) -> String {
+        BASE64_URL_SAFE_NO_PAD.encode(self.key)
     }
 }
 
@@ -59,44 +60,27 @@ impl Db {
         &mut self,
         name: impl AsRef<str>,
         is_admin: bool,
-    ) -> sqlx::Result<User> {
+    ) -> sqlx::Result<CreatedUser> {
         let name = name.as_ref();
+        let key = rand::random::<[u8; 32]>();
+        let key_hash = Sha256::digest(key);
 
-        sqlx::query_as!(
+        let user = sqlx::query_as!(
             User,
             r#"
-                INSERT INTO users (name, is_admin, created_at)
-                VALUES (?, ?, ?)
-                RETURNING id, name, is_admin, enabled, created_at as "created_at: _"
+                INSERT INTO users (name, key_hash, is_admin, created_at)
+                VALUES (?, ?, ?, ?)
+                RETURNING id, name, key_hash as "key_hash!: Vec<u8>", is_admin, enabled, created_at as "created_at: _"
             "#,
             name,
+            key_hash.as_slice(),
             is_admin,
             Utc::now()
         )
         .fetch_one(&mut self.conn)
-        .await
-    }
-
-    pub async fn create_access_token<'u>(
-        &mut self,
-        user: &'u User,
-    ) -> sqlx::Result<AccessToken<'u>> {
-        let token = rand::random::<[u8; 32]>();
-        let token_hash = Sha256::digest(token);
-
-        sqlx::query!(
-            r#"
-                INSERT INTO access_tokens (user_id, token_hash, created_at)
-                VALUES (?, ?, ?)
-            "#,
-            user.id,
-            token_hash.as_slice(),
-            Utc::now()
-        )
-        .execute(&mut self.conn)
         .await?;
 
-        Ok(AccessToken { user, token })
+        Ok(CreatedUser { user, key })
     }
 
     pub async fn create_session_token<'u>(

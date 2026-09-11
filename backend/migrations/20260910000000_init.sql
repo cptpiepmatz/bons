@@ -1,19 +1,10 @@
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
+  key_hash BLOB NOT NULL UNIQUE,
   is_admin BOOLEAN NOT NULL DEFAULT FALSE,
   enabled BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS access_tokens (
-  id INTEGER PRIMARY KEY,
-  user_id INTEGER NOT NULL,
-  token_hash BLOB NOT NULL UNIQUE,
-  created_at TEXT NOT NULL,
-  expires_at TEXT,
-  revoked_at TEXT,
-  FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
