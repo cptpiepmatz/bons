@@ -70,7 +70,7 @@ impl Db {
             r#"
                 INSERT INTO users (name, key_hash, is_admin, created_at)
                 VALUES (?, ?, ?, ?)
-                RETURNING id, name, key_hash as "key_hash!: Vec<u8>", is_admin, enabled, created_at as "created_at: _"
+                RETURNING id, name, key_hash, is_admin, enabled, created_at as "created_at: _"
             "#,
             name,
             key_hash.as_slice(),
