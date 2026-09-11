@@ -1,12 +1,9 @@
 use std::str::FromStr;
 
 use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
+use chrono::{DateTime, Month, TimeZone, Utc};
 use sha2::{Digest, Sha256};
-use sqlx::{
-    sqlite::SqliteConnectOptions,
-    types::chrono::{DateTime, Utc},
-    Connection, FromRow, SqliteConnection,
-};
+use sqlx::{sqlite::SqliteConnectOptions, Connection, SqliteConnection};
 
 use crate::{money::Money, Category};
 
@@ -14,7 +11,6 @@ pub struct Db {
     conn: SqliteConnection,
 }
 
-#[derive(FromRow)]
 pub struct User {
     id: i64,
     name: String,
@@ -46,12 +42,12 @@ impl SessionToken<'_> {
     }
 }
 
-pub struct Spending<'u> {
+pub struct Spending {
     id: i64,
     spent: Money,
     description: String,
     category: Category,
-    user: &'u User,
+    user_id: i64,
     spent_at: DateTime<Utc>,
     created_at: DateTime<Utc>,
 }
@@ -76,21 +72,30 @@ impl Db {
         let name = name.as_ref();
         let key = rand::random::<[u8; 32]>();
         let key_hash = Sha256::digest(key);
+        let created_at = Utc::now();
 
-        let user = sqlx::query_as!(
-            User,
+        let created_user = sqlx::query!(
             r#"
                 INSERT INTO users (name, key_hash, is_admin, created_at)
                 VALUES (?, ?, ?, ?)
-                RETURNING id, name, key_hash, is_admin, enabled, created_at as "created_at: _"
+                RETURNING id, enabled
             "#,
             name,
             key_hash.as_slice(),
             is_admin,
-            Utc::now()
+            created_at.timestamp()
         )
         .fetch_one(&mut self.conn)
         .await?;
+
+        let user = User {
+            id: created_user.id,
+            name: name.to_owned(),
+            key_hash: key_hash.to_vec(),
+            is_admin,
+            enabled: created_user.enabled,
+            created_at,
+        };
 
         Ok(CreatedUser { user, key })
     }
@@ -110,8 +115,8 @@ impl Db {
             "#,
             user.id,
             token_hash,
-            Utc::now(),
-            expires_at
+            Utc::now().timestamp(),
+            expires_at.timestamp()
         )
         .execute(&mut self.conn)
         .await?;
@@ -119,14 +124,14 @@ impl Db {
         Ok(SessionToken { user, token })
     }
 
-    pub async fn create_spending<'u>(
+    pub async fn create_spending(
         &mut self,
         spent: Money,
         description: String,
         category: Category,
-        user: &'u User,
+        user: &User,
         spent_at: DateTime<Utc>,
-    ) -> sqlx::Result<Spending<'u>> {
+    ) -> sqlx::Result<Spending> {
         let created_at = Utc::now();
 
         let spending = sqlx::query!(
@@ -139,8 +144,8 @@ impl Db {
             description.as_str(),
             category.as_ref(),
             user.id,
-            spent_at,
-            created_at
+            spent_at.timestamp(),
+            created_at.timestamp()
         )
         .fetch_one(&mut self.conn)
         .await?;
@@ -150,9 +155,74 @@ impl Db {
             spent,
             description,
             category,
-            user,
+            user_id: user.id,
             spent_at,
             created_at,
         })
+    }
+
+    pub async fn spendings_for_month(
+        &mut self,
+        year: i32,
+        month: Month,
+    ) -> sqlx::Result<Vec<Spending>> {
+        let month = month.number_from_month();
+        let start = Utc
+            .with_ymd_and_hms(year, month, 1, 0, 0, 0)
+            .single()
+            .ok_or_else(|| sqlx::Error::Protocol("invalid month".into()))?;
+        let (next_month_year, next_month) = if month == 12 {
+            (year + 1, 1)
+        } else {
+            (year, month + 1)
+        };
+        let end = Utc
+            .with_ymd_and_hms(next_month_year, next_month, 1, 0, 0, 0)
+            .single()
+            .ok_or_else(|| sqlx::Error::Protocol("invalid month".into()))?;
+
+        let rows = sqlx::query!(
+            r#"
+                SELECT
+                    id,
+                    spent,
+                    description,
+                    category,
+                    user_id,
+                    spent_at,
+                    created_at
+                FROM spendings
+                WHERE spent_at >= ? AND spent_at < ?
+                ORDER BY spent_at ASC, id ASC
+            "#,
+            start.timestamp(),
+            end.timestamp()
+        )
+        .fetch_all(&mut self.conn)
+        .await?;
+
+        let mut spendings = Vec::with_capacity(rows.len());
+        for row in rows {
+            let category = row
+                .category
+                .parse()
+                .map_err(|error| sqlx::Error::Decode(Box::new(error)))?;
+            let spent_at = DateTime::from_timestamp(row.spent_at, 0)
+                .ok_or_else(|| sqlx::Error::Protocol("invalid spent_at timestamp".into()))?;
+            let created_at = DateTime::from_timestamp(row.created_at, 0)
+                .ok_or_else(|| sqlx::Error::Protocol("invalid created_at timestamp".into()))?;
+
+            spendings.push(Spending {
+                id: row.id,
+                spent: Money::from_cents(row.spent),
+                description: row.description,
+                category,
+                user_id: row.user_id,
+                spent_at,
+                created_at,
+            });
+        }
+
+        Ok(spendings)
     }
 }
