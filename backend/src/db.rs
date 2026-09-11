@@ -8,6 +8,8 @@ use sqlx::{
     Connection, FromRow, SqliteConnection,
 };
 
+use crate::{money::Money, Category};
+
 pub struct Db {
     conn: SqliteConnection,
 }
@@ -42,6 +44,16 @@ impl SessionToken<'_> {
     pub fn token_as_str(&self) -> String {
         BASE64_URL_SAFE_NO_PAD.encode(self.token)
     }
+}
+
+pub struct Spending<'u> {
+    id: i64,
+    spent: Money,
+    description: String,
+    category: Category,
+    user: &'u User,
+    spent_at: DateTime<Utc>,
+    created_at: DateTime<Utc>,
 }
 
 impl Db {
@@ -105,5 +117,42 @@ impl Db {
         .await?;
 
         Ok(SessionToken { user, token })
+    }
+
+    pub async fn create_spending<'u>(
+        &mut self,
+        spent: Money,
+        description: String,
+        category: Category,
+        user: &'u User,
+        spent_at: DateTime<Utc>,
+    ) -> sqlx::Result<Spending<'u>> {
+        let created_at = Utc::now();
+
+        let spending = sqlx::query!(
+            r#"
+                INSERT INTO spendings (spent, description, category, user_id, spent_at, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                RETURNING id as "id!"
+            "#,
+            spent.as_cents(),
+            description.as_str(),
+            category.as_ref(),
+            user.id,
+            spent_at,
+            created_at
+        )
+        .fetch_one(&mut self.conn)
+        .await?;
+
+        Ok(Spending {
+            id: spending.id,
+            spent,
+            description,
+            category,
+            user,
+            spent_at,
+            created_at,
+        })
     }
 }

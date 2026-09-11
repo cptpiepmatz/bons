@@ -1,6 +1,10 @@
 use crate::db::Db;
 
 mod db;
+mod money;
+
+#[derive(strum::AsRefStr, Clone, Copy, PartialEq, Eq)]
+enum Category {}
 
 #[tokio::main]
 async fn main() {
