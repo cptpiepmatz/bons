@@ -22,12 +22,33 @@ pub struct User {
 
 pub struct CreatedUser {
     pub user: User,
-    key: [u8; 32],
+    key: Key,
 }
 
 impl CreatedUser {
     pub fn key_as_str(&self) -> String {
-        BASE64_URL_SAFE_NO_PAD.encode(self.key)
+        self.key.as_base64()
+    }
+}
+
+pub struct Key([u8; 32]);
+
+impl Key {
+    pub fn random() -> Self {
+        Self(rand::random())
+    }
+
+    pub fn as_base64(&self) -> String {
+        BASE64_URL_SAFE_NO_PAD.encode(self.0)
+    }
+
+    pub fn from_base64(key: impl AsRef<str>) -> Option<Self> {
+        let bytes = BASE64_URL_SAFE_NO_PAD.decode(key.as_ref()).ok()?;
+        Some(Self(bytes.try_into().ok()?))
+    }
+
+    pub fn hash(&self) -> Vec<u8> {
+        Sha256::digest(self.0).to_vec()
     }
 }
 
@@ -70,8 +91,8 @@ impl Db {
         is_admin: bool,
     ) -> sqlx::Result<CreatedUser> {
         let name = name.as_ref();
-        let key = rand::random::<[u8; 32]>();
-        let key_hash = Sha256::digest(key);
+        let key = Key::random();
+        let key_hash = key.hash();
         let created_at = Utc::now();
 
         let created_user = sqlx::query!(
@@ -91,13 +112,43 @@ impl Db {
         let user = User {
             id: created_user.id,
             name: name.to_owned(),
-            key_hash: key_hash.to_vec(),
+            key_hash,
             is_admin,
             enabled: created_user.enabled,
             created_at,
         };
 
         Ok(CreatedUser { user, key })
+    }
+
+    pub async fn verify_login(&mut self, key: &Key) -> sqlx::Result<Option<User>> {
+        let key_hash = key.hash();
+
+        let user = sqlx::query!(
+            r#"
+                SELECT id, name, key_hash, is_admin, enabled, created_at
+                FROM users
+                WHERE key_hash = ?
+            "#,
+            key_hash.as_slice()
+        )
+        .fetch_optional(&mut self.conn)
+        .await?;
+
+        let Some(user) = user else {
+            return Ok(None);
+        };
+        let created_at = DateTime::from_timestamp(user.created_at, 0)
+            .ok_or_else(|| sqlx::Error::Protocol("invalid created_at timestamp".into()))?;
+
+        Ok(Some(User {
+            id: user.id,
+            name: user.name,
+            key_hash: user.key_hash,
+            is_admin: user.is_admin,
+            enabled: user.enabled,
+            created_at,
+        }))
     }
 
     pub async fn create_session_token<'u>(
