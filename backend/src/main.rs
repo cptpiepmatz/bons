@@ -1,5 +1,6 @@
 use crate::db::Db;
 
+mod auth;
 mod db;
 mod money;
 

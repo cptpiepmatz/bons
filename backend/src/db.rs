@@ -1,11 +1,13 @@
 use std::str::FromStr;
 
-use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
-use chrono::{DateTime, Month, TimeZone, Utc};
-use sha2::{Digest, Sha256};
+use chrono::{DateTime, Duration, Month, TimeZone, Utc};
 use sqlx::{sqlite::SqliteConnectOptions, Connection, SqliteConnection};
 
-use crate::{money::Money, Category};
+use crate::{
+    auth::{Key, SessionToken},
+    money::Money,
+    Category,
+};
 
 pub struct Db {
     conn: SqliteConnection,
@@ -31,35 +33,14 @@ impl CreatedUser {
     }
 }
 
-pub struct Key([u8; 32]);
-
-impl Key {
-    pub fn random() -> Self {
-        Self(rand::random())
-    }
-
-    pub fn as_base64(&self) -> String {
-        BASE64_URL_SAFE_NO_PAD.encode(self.0)
-    }
-
-    pub fn from_base64(key: impl AsRef<str>) -> Option<Self> {
-        let bytes = BASE64_URL_SAFE_NO_PAD.decode(key.as_ref()).ok()?;
-        Some(Self(bytes.try_into().ok()?))
-    }
-
-    pub fn hash(&self) -> Vec<u8> {
-        Sha256::digest(self.0).to_vec()
-    }
-}
-
-pub struct SessionToken<'u> {
+pub struct CreatedSessionToken<'u> {
     user: &'u User,
-    token: [u8; 32],
+    token: SessionToken,
 }
 
-impl SessionToken<'_> {
+impl CreatedSessionToken<'_> {
     pub fn token_as_str(&self) -> String {
-        BASE64_URL_SAFE_NO_PAD.encode(self.token)
+        self.token.as_base64()
     }
 }
 
@@ -128,7 +109,7 @@ impl Db {
             r#"
                 SELECT id, name, key_hash, is_admin, enabled, created_at
                 FROM users
-                WHERE key_hash = ?
+                WHERE key_hash = ? AND enabled
             "#,
             key_hash.as_slice()
         )
@@ -155,9 +136,9 @@ impl Db {
         &mut self,
         user: &'u User,
         expires_at: DateTime<Utc>,
-    ) -> sqlx::Result<SessionToken<'u>> {
-        let token = rand::random::<[u8; 32]>();
-        let token_hash = BASE64_URL_SAFE_NO_PAD.encode(Sha256::digest(token));
+    ) -> sqlx::Result<CreatedSessionToken<'u>> {
+        let token = SessionToken::random();
+        let token_hash = token.hash();
 
         sqlx::query!(
             r#"
@@ -172,7 +153,63 @@ impl Db {
         .execute(&mut self.conn)
         .await?;
 
-        Ok(SessionToken { user, token })
+        Ok(CreatedSessionToken { user, token })
+    }
+
+    pub async fn verify_session(&mut self, token: &SessionToken) -> sqlx::Result<Option<User>> {
+        let token_hash = token.hash();
+        let now = Utc::now();
+
+        let row = sqlx::query!(
+            r#"
+                SELECT
+                    sessions.id as session_id,
+                    users.id,
+                    users.name,
+                    users.key_hash,
+                    users.is_admin,
+                    users.enabled,
+                    users.created_at
+                FROM sessions
+                INNER JOIN users ON users.id = sessions.user_id
+                WHERE sessions.token_hash = ?
+                    AND sessions.expires_at > ?
+                    AND users.enabled
+            "#,
+            token_hash,
+            now.timestamp()
+        )
+        .fetch_optional(&mut self.conn)
+        .await?;
+
+        let Some(row) = row else {
+            return Ok(None);
+        };
+
+        let expires_at = now + Duration::days(30);
+        sqlx::query!(
+            r#"
+                UPDATE sessions
+                SET expires_at = ?
+                WHERE id = ?
+            "#,
+            expires_at.timestamp(),
+            row.session_id
+        )
+        .execute(&mut self.conn)
+        .await?;
+
+        let created_at = DateTime::from_timestamp(row.created_at, 0)
+            .ok_or_else(|| sqlx::Error::Protocol("invalid created_at timestamp".into()))?;
+
+        Ok(Some(User {
+            id: row.id,
+            name: row.name,
+            key_hash: row.key_hash,
+            is_admin: row.is_admin,
+            enabled: row.enabled,
+            created_at,
+        }))
     }
 
     pub async fn create_spending(
