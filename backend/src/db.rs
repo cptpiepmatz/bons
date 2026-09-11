@@ -5,26 +5,27 @@ use sqlx::{sqlite::SqliteConnectOptions, Connection, SqliteConnection};
 
 use crate::{
     auth::{Key, SessionToken},
+    category::Category,
     money::Money,
-    Category,
 };
 
 pub struct Db {
     conn: SqliteConnection,
 }
 
+#[derive(Clone)]
 pub struct User {
-    id: i64,
-    name: String,
-    key_hash: Vec<u8>,
-    is_admin: bool,
-    enabled: bool,
-    created_at: DateTime<Utc>,
+    pub id: i64,
+    pub name: String,
+    pub key_hash: Vec<u8>,
+    pub is_admin: bool,
+    pub enabled: bool,
+    pub created_at: DateTime<Utc>,
 }
 
 pub struct CreatedUser {
     pub user: User,
-    key: Key,
+    pub key: Key,
 }
 
 impl CreatedUser {
@@ -34,24 +35,24 @@ impl CreatedUser {
 }
 
 pub struct CreatedSessionToken<'u> {
-    user: &'u User,
-    token: SessionToken,
+    pub user: &'u User,
+    pub token: SessionToken,
 }
 
 impl CreatedSessionToken<'_> {
-    pub fn token_as_str(&self) -> String {
+    pub fn token_as_string(&self) -> String {
         self.token.as_base64()
     }
 }
 
 pub struct Spending {
-    id: i64,
-    spent: Money,
-    description: String,
-    category: Category,
-    user_id: i64,
-    spent_at: DateTime<Utc>,
-    created_at: DateTime<Utc>,
+    pub id: i64,
+    pub spent: Money,
+    pub description: String,
+    pub category: Category,
+    pub user_id: i64,
+    pub spent_at: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
 }
 
 impl Db {
