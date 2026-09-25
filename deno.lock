@@ -4,6 +4,7 @@
     "jsr:@std/fs@^1.0.24": "1.0.24",
     "jsr:@std/internal@^1.0.14": "1.0.14",
     "jsr:@std/path@^1.1.5": "1.1.6",
+    "npm:@fontsource-variable/inter@^5.3.0": "5.3.0",
     "npm:@vitejs/plugin-vue@6.0.1": "6.0.1_vite@7.1.4_vue@3.5.21_sass-embedded@1.90.0",
     "npm:bulma@1.0.4": "1.0.4",
     "npm:sass-embedded@1.90.0": "1.90.0",
@@ -182,6 +183,9 @@
       "integrity": "sha512-alJC0uCZpTFrSL0CCDjcgleBXPnCrEAhTBILpeAp7M/OFgoqtAetfBzX0xM00MUsVVPpVjlPuMbREqnZCXaTnA==",
       "os": ["win32"],
       "cpu": ["x64"]
+    },
+    "@fontsource-variable/inter@5.3.0": {
+      "integrity": "sha512-OupL48va4JNofb97w6NYeF9S7W/kHNKM0Er8Dem5nqi4jeOLrVJDoE8tZEpnMJmtkvNbB1EIPPwHcdkF6b1oUA=="
     },
     "@jridgewell/sourcemap-codec@1.6.0": {
       "integrity": "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="
@@ -893,6 +897,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/fs@^1.0.24",
+      "npm:@fontsource-variable/inter@^5.3.0",
       "npm:@vitejs/plugin-vue@6.0.1",
       "npm:bulma@1.0.4",
       "npm:sass-embedded@1.90.0",
