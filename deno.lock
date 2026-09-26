@@ -10,6 +10,7 @@
     "npm:sass-embedded@1.90.0": "1.90.0",
     "npm:sql-formatter@^15.8.2": "15.8.2",
     "npm:vite@7.1.4": "7.1.4_sass-embedded@1.90.0_picomatch@4.0.7",
+    "npm:vue-router@^4.5.1": "4.6.4_vue@3.5.21",
     "npm:vue@3.5.21": "3.5.21"
   },
   "jsr": {
@@ -456,6 +457,9 @@
         "@vue/shared"
       ]
     },
+    "@vue/devtools-api@6.6.4": {
+      "integrity": "sha512-sGhTPMuXqZ1rVOk32RylztWkfXTRhuS7vgAKv0zjqk8gbsHkJ7xfFf+jbySxt7tWObEJwyKaHMikV/WGDiQm8g=="
+    },
     "@vue/reactivity@3.5.21": {
       "integrity": "sha512-3ah7sa+Cwr9iiYEERt9JfZKPw4A2UlbY8RbbnH2mGCE8NwHkhmlZt2VsH0oDA3P08X3jJd29ohBDtX+TbD9AsA==",
       "dependencies": [
@@ -883,6 +887,13 @@
       ],
       "bin": true
     },
+    "vue-router@4.6.4_vue@3.5.21": {
+      "integrity": "sha512-Hz9q5sa33Yhduglwz6g9skT8OBPii+4bFn88w6J+J4MfEo4KRRpmiNG/hHHkdbRFlLBOqxN8y8gf2Fb0MTUgVg==",
+      "dependencies": [
+        "@vue/devtools-api",
+        "vue"
+      ]
+    },
     "vue@3.5.21": {
       "integrity": "sha512-xxf9rum9KtOdwdRkiApWL+9hZEMWE90FHh8yS1+KJAiWYh+iGWV1FquPjoO9VUHQ+VIhsCXNNyZ5Sf4++RVZBA==",
       "dependencies": [
@@ -903,6 +914,7 @@
       "npm:sass-embedded@1.90.0",
       "npm:sql-formatter@^15.8.2",
       "npm:vite@7.1.4",
+      "npm:vue-router@^4.5.1",
       "npm:vue@3.5.21"
     ]
   }
