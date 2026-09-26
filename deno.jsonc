@@ -70,6 +70,7 @@
     "@std/fs": "jsr:@std/fs@^1.0.24",
     "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue@6.0.1",
     "bulma": "npm:bulma@1.0.4",
+    "dayjs": "npm:dayjs@^1.11.23",
     "sass-embedded": "npm:sass-embedded@1.90.0",
     "sql-formatter": "npm:sql-formatter@^15.8.2",
     "vite": "npm:vite@7.1.4",
