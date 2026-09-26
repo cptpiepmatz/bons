@@ -92,5 +92,5 @@
       "write": true
     }
   },
-  "unstable": ["fmt-component", "fmt-sql"]
+  "unstable": ["fmt-component"]
 }
