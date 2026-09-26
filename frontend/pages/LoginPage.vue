@@ -46,7 +46,7 @@ const key = ref("");
         <div>
           <div class="is-flex is-flex-direction-column is-align-items-center">
             <div class="is-flex is-align-items-center">
-              <Logo width="100em" />
+              <Logo width="100em" class="mr-1" />
               <p class="title" :style="{fontSize: '4em'}">bons</p>
             </div>
             <p>Eure Ausgaben. Alles im Blick.</p>
@@ -56,30 +56,43 @@ const key = ref("");
         <div>
           <div class="block">
             <p
-              class="title mb-1 is-size-4 has-text-weight-bold">Willkommen bei bons</p>
+              class="title mb-1 is-size-4 has-text-weight-bold">
+              Willkommen bei bons
+            </p>
             <p>Füg deinen Zugangsschlüssel ein, dann geht’s los.</p>
           </div>
           <div class="block">
-            <div :style="{fontSize: '0.8em', fontWeight: 'bold'}"
-              class="mb-1">Zugangsschlüssel</div>
+            <div
+              :style="{fontSize: '0.8em', fontWeight: 'bold'}"
+              class="mb-1"
+            >
+              Zugangsschlüssel
+            </div>
             <div class="control has-icons-right">
-              <input class="input" :type="hideKey ? 'password' : 'text'"
+              <input
+                class="input" :type="hideKey ? 'password' : 'text'"
                 placeholder="Hier einfügen" v-model="key"
-                @keydown.space.prevent />
-              <span class="icon is-small is-right eye"
-                @click="hideKey = !hideKey">
+                @keydown.space.prevent
+              />
+              <span
+                class="icon is-small is-right eye"
+                @click="hideKey = !hideKey"
+              >
                 <PhEye v-if="hideKey" weight="bold" />
                 <PhEyeSlash v-else weight="bold" />
               </span>
             </div>
           </div>
           <div class="block">
-            <button class="button is-primary is-fullwidth mb-2"
-              :disabled="!key">
+            <button
+              class="button is-primary is-fullwidth mb-2"
+              :disabled="!key"
+            >
             Los geht's
           </button>
-            <p
-              :style="{fontSize: '0.7em'}">Noch keinen Schlüssel? Frag bei der Person nach, die bons eingerichtet hat.</p>
+            <p :style="{fontSize: '0.7em'}">
+              Noch keinen Schlüssel? Frag bei der Person nach, die bons eingerichtet hat.
+            </p>
           </div>
         </div>
       </div>
