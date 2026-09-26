@@ -1,3 +1,7 @@
-<template>
+<script setup lang="ts">
+import type { Dayjs } from "dayjs";
 
-</template>
+defineProps<{ monthDate: Dayjs }>();
+</script>
+
+<template></template>

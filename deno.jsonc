@@ -90,5 +90,6 @@
       "read": true,
       "write": true
     }
-  }
+  },
+  "unstable": ["fmt-component", "fmt-sql"]
 }
