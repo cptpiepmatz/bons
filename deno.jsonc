@@ -81,7 +81,7 @@
     "types": ["vite/client"]
   },
   "fmt": {
-    "exclude": ["target", "dist", "node_modules"]
+    "exclude": ["target", "dist", "node_modules", "logo"]
   },
   "nodeModulesDir": "auto",
   "permissions": {
