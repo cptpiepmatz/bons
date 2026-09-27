@@ -12,10 +12,12 @@ use axum::{
 };
 use chrono::{DateTime, Duration, Month, Utc};
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 use crate::{
     api::auth::session_cookie,
     auth::Key,
+    category::Category,
     db::{Spending, User},
     money::Money,
     AppState,
@@ -54,13 +56,15 @@ async fn create_user(
     }))
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, TS)]
+#[ts(export)]
 struct CreateUserRequest {
     name: String,
     is_admin: bool,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, TS)]
+#[ts(export)]
 struct CreateUserResponse {
     user: UserResponse,
     key: String,
@@ -95,12 +99,14 @@ async fn login(
     Ok(response)
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, TS)]
+#[ts(export)]
 struct LoginRequest {
     key: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, TS)]
+#[ts(export)]
 struct LoginResponse {
     user: UserResponse,
 }
@@ -110,10 +116,6 @@ async fn create_spending(
     Extension(user): Extension<User>,
     Json(request): Json<CreateSpendingRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let category = request
-        .category
-        .parse()
-        .map_err(|_| StatusCode::BAD_REQUEST)?;
     let spent_at = DateTime::from_timestamp(request.spent_at, 0).ok_or(StatusCode::BAD_REQUEST)?;
 
     let mut db = state.db.lock().await;
@@ -121,7 +123,7 @@ async fn create_spending(
         .create_spending(
             Money::from_cents(request.spent_cents),
             request.description,
-            category,
+            request.category,
             &user,
             spent_at,
         )
@@ -131,11 +133,14 @@ async fn create_spending(
     Ok(Json(SpendingResponse::from_spending(&spending)))
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, TS)]
+#[ts(export)]
 struct CreateSpendingRequest {
+    #[ts(type = "number")]
     spent_cents: i64,
     description: String,
-    category: String,
+    category: Category,
+    #[ts(type = "number")]
     spent_at: i64,
 }
 
@@ -159,12 +164,15 @@ async fn spendings_for_month(
     ))
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, TS)]
+#[ts(export)]
 struct UserResponse {
+    #[ts(type = "number")]
     id: i64,
     name: String,
     is_admin: bool,
     enabled: bool,
+    #[ts(type = "number")]
     created_at: i64,
 }
 
@@ -180,14 +188,20 @@ impl UserResponse {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, TS)]
+#[ts(export)]
 struct SpendingResponse {
+    #[ts(type = "number")]
     id: i64,
+    #[ts(type = "number")]
     spent_cents: i64,
     description: String,
-    category: String,
+    category: Category,
+    #[ts(type = "number")]
     user_id: i64,
+    #[ts(type = "number")]
     spent_at: i64,
+    #[ts(type = "number")]
     created_at: i64,
 }
 
@@ -197,7 +211,7 @@ impl SpendingResponse {
             id: spending.id,
             spent_cents: spending.spent.as_cents(),
             description: spending.description.clone(),
-            category: spending.category.as_ref().to_owned(),
+            category: spending.category,
             user_id: spending.user_id,
             spent_at: spending.spent_at.timestamp(),
             created_at: spending.created_at.timestamp(),

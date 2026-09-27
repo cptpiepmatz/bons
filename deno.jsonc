@@ -22,9 +22,15 @@
       "command": "cargo build",
       "dependencies": ["build:frontend", "db:prepare"]
     },
+    "build:bindings": {
+      "description": "Build the Rust-Typescript bindings",
+      "command": "cargo test export_bindings",
+      "dependencies": ["db:prepare"]
+    },
     "build:frontend": {
       "description": "Build the frontend assets",
-      "command": "deno run -A vite build"
+      "command": "deno run -A vite build",
+      "dependencies": ["build:bindings"]
     },
     "db:version": {
       "description": "Check that sqlx-cli is installed",
@@ -83,7 +89,7 @@
     "types": ["vite/client"]
   },
   "fmt": {
-    "exclude": ["target", "dist", "node_modules", "logo"]
+    "exclude": ["target", "dist", "node_modules", "logo", "bindings"]
   },
   "nodeModulesDir": "auto",
   "permissions": {

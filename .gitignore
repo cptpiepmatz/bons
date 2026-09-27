@@ -4,3 +4,4 @@ frontend/.vite/
 node_modules/
 target/
 bons.sqlite
+bindings/

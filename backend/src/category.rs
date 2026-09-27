@@ -1,5 +1,17 @@
-#[derive(strum::AsRefStr, strum::EnumString, Clone, Copy, PartialEq, Eq)]
+#[derive(
+    serde::Deserialize,
+    serde::Serialize,
+    strum::AsRefStr,
+    strum::EnumString,
+    ts_rs::TS,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+)]
+#[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
+#[ts(export, rename_all = "snake_case")]
 pub enum Category {
     Groceries,
     EatingOut,
