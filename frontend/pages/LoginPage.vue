@@ -14,8 +14,8 @@ const isMobile = useMediaQuery("(max-width: 768px)");
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
 
   @media (min-width: 769px) {
     background-color: var(--bulma-white-ter);
@@ -46,7 +46,7 @@ const isMobile = useMediaQuery("(max-width: 768px)");
 
 <template>
   <div class="layout">
-    <div :class="isMobile ? '' : 'card'">
+    <div :class="isMobile ? 'm-4' : 'card'">
       <div :class="isMobile ? '' : 'card-content'">
         <div>
           <div class="is-flex is-flex-direction-column is-align-items-center">

@@ -8,6 +8,14 @@ html {
   overflow-y: auto;
 }
 
+// ensure the app gets 100% of the page to avoid working with 100vh or 100vw
+html,
+body,
+#app {
+  height: 100%;
+}
+
+// ensure that we get dark scrollbars on dark mode
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
