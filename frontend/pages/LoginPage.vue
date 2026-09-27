@@ -2,9 +2,11 @@
 import { PhEye, PhEyeSlash } from "@phosphor-icons/vue";
 import Logo from "../components/Logo.vue";
 import { ref } from "vue";
+import { useMediaQuery } from "../composables/useMediaQuery.ts";
 
 const hideKey = ref(true);
 const key = ref("");
+const isMobile = useMediaQuery("(max-width: 768px)");
 </script>
 
 <style lang="scss" scoped>
@@ -14,14 +16,17 @@ const key = ref("");
   justify-content: center;
   height: 100vh;
   width: 100vw;
-  background-color: var(--bulma-white-ter);
 
-  @media (prefers-color-scheme: dark) {
-    background-color: var(--bulma-black-ter);
+  @media (min-width: 769px) {
+    background-color: var(--bulma-white-ter);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--bulma-black-ter);
+    }
   }
 
-  * {
-    max-width: 25rem;
+  > * {
+    max-width: 30rem;
   }
 }
 
@@ -41,8 +46,8 @@ const key = ref("");
 
 <template>
   <div class="layout">
-    <div class="card">
-      <div class="card-content">
+    <div :class="isMobile ? '' : 'card'">
+      <div :class="isMobile ? '' : 'card-content'">
         <div>
           <div class="is-flex is-flex-direction-column is-align-items-center">
             <div class="is-flex is-align-items-center">
