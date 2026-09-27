@@ -6,7 +6,8 @@
     },
     "dev:frontend": {
       "description": "Run the Vite development server",
-      "command": "deno run -A vite --host 127.0.0.1"
+      "command": "deno run -A vite --host 127.0.0.1",
+      "dependencies": ["build:bindings"]
     },
     "dev:backend": {
       "description": "Prepare the database and run the backend",
