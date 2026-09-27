@@ -11,7 +11,7 @@
     },
     "dev:backend": {
       "description": "Prepare the database and run the backend",
-      "command": "cargo run",
+      "command": "cargo run -- serve",
       "dependencies": ["db:prepare"]
     },
     "build": {

@@ -1,3 +1,5 @@
+#![expect(dead_code)]
+
 use std::str::FromStr;
 
 use chrono::{DateTime, Duration, Month, TimeZone, Utc};

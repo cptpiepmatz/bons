@@ -9,6 +9,7 @@ path = "backend/src/main.rs"
 
 [dependencies]
 axum = "0.8"
+clap = { version = "4.5", features = ["derive"] }
 cookie = "0.18"
 serde = { version = "1", features = ["derive"] }
 ts-rs = "12.0.1"
