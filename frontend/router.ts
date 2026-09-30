@@ -16,7 +16,7 @@ export const router = createRouter({
         const month = to.params.month;
 
         if (!year && !month) {
-          to.meta.month = dayjs();
+          to.meta.monthDate = dayjs();
           return true;
         }
 
@@ -24,7 +24,8 @@ export const router = createRouter({
 
         const capitalizedMonth = month.charAt(0).toUpperCase() +
           month.slice(1).toLowerCase();
-        const date = dayjs(`${capitalizedMonth} ${year}`, "MMMM YYYY", "en");
+        const date = dayjs(`${capitalizedMonth} ${year}`, "MMMM YYYY", "en")
+          .locale(dayjs.locale());
 
         if (!date.isValid()) return "/";
         to.meta.monthDate = date;
