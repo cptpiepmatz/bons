@@ -47,6 +47,18 @@
       "command": "cargo sqlx prepare -D sqlite://target/sqlx.sqlite",
       "dependencies": ["db:version", "db:setup"]
     },
+    "test": {
+      "description": "Run frontend and backend tests",
+      "command": "deno task test:*"
+    },
+    "test:frontend": {
+      "description": "Run frontend tests",
+      "command": "deno test"
+    },
+    "test:backend": {
+      "description": "Run backend tests",
+      "command": "cargo test"
+    },
     "fmt": {
       "description": "Format all project files",
       "command": "deno task fmt:*"
