@@ -1,5 +1,6 @@
-import { createRouter, createWebHistory } from "vue-router";
 import dayjs, { type Dayjs } from "dayjs";
+import { createRouter, createWebHistory } from "vue-router";
+
 import LoginPage from "./pages/LoginPage.vue";
 import MonthPage from "./pages/MonthPage.vue";
 

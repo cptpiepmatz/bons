@@ -1,5 +1,5 @@
-import { format } from "sql-formatter";
 import { expandGlob } from "@std/fs";
+import { format } from "sql-formatter";
 
 for await (const { path } of expandGlob("backend/**/*.sql")) {
   const sql = await Deno.readTextFile(path);

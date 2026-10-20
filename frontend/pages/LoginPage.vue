@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { PhEye, PhEyeSlash } from "@phosphor-icons/vue";
-import Logo from "../components/Logo.vue";
 import { ref } from "vue";
+
+import Logo from "../components/Logo.vue";
 import { useMediaQuery } from "../composables/useMediaQuery.ts";
 
 const hideKey = ref(true);
