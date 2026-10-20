@@ -1,3 +1,5 @@
+import { expect } from "@std/expect";
+
 import { Money } from "./money.ts";
 
 Deno.test("Money preserves cents and formats exact decimal amounts", () => {
@@ -12,20 +14,13 @@ Deno.test("Money preserves cents and formats exact decimal amounts", () => {
   ];
   for (const [cents, expected] of cases) {
     const money = Money.fromCents(cents);
-    if (money.toCents() !== cents || money.toString() !== expected) {
-      throw new Error(`Unexpected amount for ${cents}: ${money}`);
-    }
+    expect(money.toCents()).toBe(cents);
+    expect(money.toString()).toBe(expected);
   }
 });
 
 Deno.test("Money rejects fractional and unsafe cents", () => {
   for (const cents of [0.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1]) {
-    try {
-      Money.fromCents(cents);
-    } catch (error) {
-      if (error instanceof RangeError) continue;
-      throw error;
-    }
-    throw new Error(`Accepted invalid cents: ${cents}`);
+    expect(() => Money.fromCents(cents)).toThrow(RangeError);
   }
 });

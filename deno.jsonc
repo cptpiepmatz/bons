@@ -97,11 +97,11 @@
   },
   "imports": {
     "@fontsource-variable/inter": "npm:@fontsource-variable/inter@^5.3.0",
-    "@huggingface/transformers": "npm:@huggingface/transformers@^4.3.1",
     "@phosphor-icons/vue": "npm:@phosphor-icons/vue@^2.2.1",
     "@primp/primp": "jsr:@primp/primp@2.0.0-rc.1",
     "@primp/vue": "jsr:@primp/vue@2.0.0-rc.1",
     "@std/assert": "jsr:@std/assert@^1.0.0",
+    "@std/expect": "jsr:@std/expect@^1.0.20",
     "@std/fs": "jsr:@std/fs@^1.0.24",
     "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue@6.0.9",
     "bulma": "npm:bulma@1.0.4",
@@ -128,12 +128,6 @@
     ]
   },
   "nodeModulesDir": "auto",
-  "allowScripts": {
-    "deny": [
-      "npm:protobufjs",
-      "npm:onnxruntime-node"
-    ]
-  },
   "permissions": {
     "tools": {
       "read": true,
