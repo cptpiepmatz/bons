@@ -3,5 +3,8 @@
     ".sqlx": "database",
     "bindings": "interface",
     "logo": "theme"
-  }
+  },
+  "cSpell.words": [
+    "huggingface"
+  ]
 }

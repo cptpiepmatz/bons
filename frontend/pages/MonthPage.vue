@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import type { Dayjs } from "dayjs";
 
+import { suggestCategory } from "../services/classifier.ts";
+
 const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 const formattedMonth = monthDate.format("MMMM YYYY");
+
+async function testSuggestCategory() {
+  console.log(await suggestCategory("Aldi"));
+}
 </script>
 
 <style lang="scss" scoped>
@@ -34,6 +40,9 @@ const formattedMonth = monthDate.format("MMMM YYYY");
         <div class="card">
           <div class="card-content">
             <p>{{ formattedMonth }}</p>
+            <button class="button" type="button" @click="testSuggestCategory">
+              Test category suggestion
+            </button>
           </div>
         </div>
       </div>
