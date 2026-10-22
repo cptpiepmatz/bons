@@ -1,14 +1,25 @@
 <script setup lang="ts">
+import { Avatar, Style } from "@dicebear/core";
+import thumbs from "@dicebear/styles/thumbs.json" with { type: "json" };
+import { PhCaretDown } from "@phosphor-icons/vue";
 import { ref } from "vue";
 
 import type { Dayjs } from "dayjs";
 
+import Logo from "../components/Logo.vue";
 import { suggestCategory } from "../services/classifier.ts";
 
 const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 const formattedMonth = monthDate.format("MMMM YYYY");
 const categoryInput = ref("Aldi");
 const isClassifying = ref(false);
+
+const style = new Style(thumbs);
+const avatar = new Avatar(style, {
+  seed: "Tim",
+  backgroundColor: ["16161a"],
+  shapeColor: ["#B8245A"],
+}).toDataUri();
 
 async function testSuggestCategory() {
   const text = categoryInput.value.trim();
@@ -33,67 +44,50 @@ async function testSuggestCategory() {
 </script>
 
 <style lang="scss" scoped>
+.avatar {
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .layout {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 100%;
   width: 100%;
+}
 
-  @media (min-width: 769px) {
-    background-color: var(--bulma-white-ter);
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--bulma-black-ter);
-    }
-  }
-
-  > * {
-    max-width: 30rem;
+  div {
+    width: 100%;
+    max-width: 700px;
   }
 }
 </style>
 
 <template>
   <div class="layout">
-    <div class="columns">
-      <div class="column">
-        <div class="card">
-          <div class="card-content">
-            <p>{{ formattedMonth }}</p>
-            <form class="mt-4" @submit.prevent="testSuggestCategory">
-              <div class="field">
-                <label class="label"
-                  for="category-input">Store or expense</label>
-                <div class="control">
-                  <input
-                    id="category-input"
-                    v-model="categoryInput"
-                    class="input"
-                    type="text"
-                    placeholder="Aldi, Rossmann, Friseur…"
-                  />
-                </div>
-              </div>
-              <button
-                class="button"
-                :class="{ 'is-loading': isClassifying }"
-                type="submit"
-                :disabled="isClassifying || !categoryInput.trim()"
-              >
-                Test category suggestion
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div class="column">
-        <div class="card">
-          <div class="card-content">
-            right
-          </div>
-        </div>
+    <div class="header">
+      <div
+        class="is-flex is-flex-direction-row is-justify-content-space-between">
+        <left class="is-flex is-flex-direction-row is-align-items-center">
+          <Logo width="100em" class="mr-1" />
+          <p class="title" :style="{fontSize: '4em'}">bons</p>
+          <p>Eure Ausgaben. Alles im Blick.</p>
+        </left>
+        <right class="is-flex is-flex-direction-row is-align-items-center">
+          <img :src="avatar" alt="Avatar" class="avatar">
+          <p>Tim</p>
+          <span class="icon">
+            <PhCaretDown />
+          </span>
+        </right>
       </div>
     </div>
+    <hr>
+    <div></div>
   </div>
 </template>

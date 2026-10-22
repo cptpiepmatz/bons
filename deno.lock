@@ -11,6 +11,8 @@
     "jsr:@std/internal@^1.0.14": "1.0.14",
     "jsr:@std/path@^1.1.5": "1.1.6",
     "jsr:@std/path@^1.1.6": "1.1.6",
+    "npm:@dicebear/core@^10.7.0": "10.7.0",
+    "npm:@dicebear/styles@^10.6.0": "10.6.0",
     "npm:@fontsource-variable/inter@^5.3.0": "5.3.0",
     "npm:@phosphor-icons/vue@^2.2.1": "2.2.1_vue@3.5.43_typescript@6.0.3",
     "npm:@types/yargs@^17.0.35": "17.0.35",
@@ -97,6 +99,12 @@
     },
     "@bufbuild/protobuf@2.15.0": {
       "integrity": "sha512-DAheWUkVr/SJTWCc+lg9dhY0eN4SaWlf4+bG1KzHeXbnqt0AfB/NX0Z+VunGlM1ki1B4zVvye27MpKh/svySUA=="
+    },
+    "@dicebear/core@10.7.0": {
+      "integrity": "sha512-JUOzKOd8RUByJJo8ZL+C7YE/pvEsWewfpbWUmR8OIQZWv/PvUQHnohdevySC3icyyxe6EIU/8B/rQgA42us1QA=="
+    },
+    "@dicebear/styles@10.6.0": {
+      "integrity": "sha512-KhxbEVI+z8TaenX58+ZhIRFBt7adggu/F+8g6ZYLu43H2/lgLuWA3Kg8vHBrCVWdfTTTt1p2wUhQomIkkypTuQ=="
     },
     "@fontsource-variable/inter@5.3.0": {
       "integrity": "sha512-OupL48va4JNofb97w6NYeF9S7W/kHNKM0Er8Dem5nqi4jeOLrVJDoE8tZEpnMJmtkvNbB1EIPPwHcdkF6b1oUA=="
@@ -1122,6 +1130,8 @@
       "jsr:@std/assert@1",
       "jsr:@std/expect@^1.0.20",
       "jsr:@std/fs@^1.0.24",
+      "npm:@dicebear/core@^10.7.0",
+      "npm:@dicebear/styles@^10.6.0",
       "npm:@fontsource-variable/inter@^5.3.0",
       "npm:@phosphor-icons/vue@^2.2.1",
       "npm:@vitejs/plugin-vue@6.0.9",
