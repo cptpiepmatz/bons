@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { PhAcorn, PhCaretDown, PhPencilSimple } from "@phosphor-icons/vue";
+import {
+  PhAcorn,
+  PhCalendarDots,
+  PhCaretDown,
+  PhPencilSimple,
+  PhPlusSquare,
+} from "@phosphor-icons/vue";
 import { computed, effect, onMounted, onUnmounted, ref, watch } from "vue";
 
 import CategoryIcon from "../../components/CategoryIcon.vue";
@@ -66,7 +72,18 @@ function onDescriptionInput(event: Event) {
   <div class="card">
     <div class="card-content">
       <div class="block">
-        <label for="spent">Betrag</label>
+        <div class="is-flex is-flex-direction-row is-align-items-center">
+          <span class="icon has-text-primary is-large">
+            <PhPlusSquare weight="fill" size="2.5em" />
+          </span>
+          <div class="is-flex is-flex-direction-column">
+            <span class="title is-size-5">Neue Ausgabe</span>
+            <span class="subtitle is-size-7">Was habt ihr ausgegeben?</span>
+          </div>
+        </div>
+      </div>
+      <div class="block">
+        <label class="label" for="spent">Betrag</label>
         <div class="field has-addons">
           <p class="control is-expanded">
             <input
@@ -86,7 +103,7 @@ function onDescriptionInput(event: Event) {
         </div>
       </div>
       <div class="block">
-        <label for="description">Beschreibung</label>
+        <label class="label" for="description">Beschreibung</label>
         <div class="field has-addons">
           <p class="control is-expanded">
             <input
@@ -100,7 +117,7 @@ function onDescriptionInput(event: Event) {
         </div>
       </div>
       <div class="block">
-        <label for="category">Kategorie</label>
+        <label class="label" for="category">Kategorie</label>
         <div class="field has-addons">
           <div class="control is-expanded">
             <input type="hidden" name="category" :value="selectedCategory">
@@ -150,9 +167,9 @@ function onDescriptionInput(event: Event) {
         </div>
       </div>
       <div class="block">
-        <label for="spent_at">Datum</label>
+        <label class="label" for="spent_at">Datum</label>
         <div class="field has-addons">
-          <p class="control is-expanded">
+          <p class="control is-expanded has-icons-right">
             <input
               class="input"
               id="spent_at"
@@ -170,10 +187,13 @@ function onDescriptionInput(event: Event) {
               readonly
               @click="spentAtInputDate?.showPicker()"
             >
+            <span class="icon is-right">
+              <PhCalendarDots />
+            </span>
           </p>
         </div>
       </div>
-      <p class="icon-text mb-1">
+      <p class="icon-text mb-1" style="font-size: 0.8em">
         <span class="icon">
           <PhPencilSimple weight="fill" />
         </span>
