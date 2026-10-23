@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { PhCaretDown } from "@phosphor-icons/vue";
+import { PhAcorn, PhCaretDown, PhPencilSimple } from "@phosphor-icons/vue";
 import { computed, effect, onMounted, onUnmounted, ref, watch } from "vue";
 
 import CategoryIcon from "../../components/CategoryIcon.vue";
+import UserAvatar from "../../components/UserAvatar.vue";
 import { categories } from "../../generated/categories.ts";
 import { Money } from "../../models/money.ts";
 import { suggestCategory } from "../../services/classifier.ts";
@@ -172,6 +173,12 @@ function onDescriptionInput(event: Event) {
           </p>
         </div>
       </div>
+      <p class="icon-text mb-1">
+        <span class="icon">
+          <PhPencilSimple weight="fill" />
+        </span>
+        <span>Eingetragen von dir</span>
+      </p>
       <button class="button is-primary is-fullwidth" :disabled="!entryIsValid">
         Ausgaben hinzufügen
       </button>

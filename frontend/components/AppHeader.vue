@@ -1,35 +1,11 @@
 <script setup lang="ts">
-import { Avatar, Style } from "@dicebear/core";
-import thumbs from "@dicebear/styles/thumbs.json" with { type: "json" };
 import { PhCaretDown } from "@phosphor-icons/vue";
-import { computed, effect, onMounted, ref, watch } from "vue";
+import { ref } from "vue";
 
-import { useMediaQuery } from "../composables/useMediaQuery.ts";
-import { getBulmaColor } from "../services/bulma.ts";
 import AppLogo from "./AppLogo.vue";
-
-const backgroundColor = ref("#00000000");
-const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
-
-function updateBackgroundColor() {
-  backgroundColor.value = getBulmaColor("text-color", "text");
-}
-
-effect(() => console.log(backgroundColor.value));
-
-onMounted(updateBackgroundColor);
-watch(prefersDark, updateBackgroundColor, { flush: "post" });
+import UserAvatar from "./UserAvatar.vue";
 
 const userName = ref("Tim");
-const style = new Style(thumbs);
-const avatar = computed(() =>
-  new Avatar(style, {
-    seed: userName.value,
-    scale: 0.9,
-    backgroundColor: [backgroundColor.value],
-    shapeColor: ["#B8245A"],
-  }).toDataUri()
-);
 </script>
 
 <style lang="scss" scoped>
@@ -70,8 +46,6 @@ const avatar = computed(() =>
       .avatar {
         width: 2.3em;
         height: auto;
-        border-radius: 50%;
-        object-fit: cover;
       }
     }
   }
@@ -95,7 +69,7 @@ const avatar = computed(() =>
         </div>
       </div>
       <div class="right">
-        <img :src="avatar" alt="Avatar" class="avatar mr-2">
+        <UserAvatar :user-name="userName" class="avatar mr-2" />
         <a class="level has-text-current" style="gap: 0">
           <span class="level-item">{{ userName }}</span>
           <span class="level-item icon"><PhCaretDown /></span>
