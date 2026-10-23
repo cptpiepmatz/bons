@@ -2,7 +2,7 @@
 import { PhEye, PhEyeSlash } from "@phosphor-icons/vue";
 import { ref } from "vue";
 
-import Logo from "../components/Logo.vue";
+import AppLogo from "../components/AppLogo.vue";
 import { useMediaQuery } from "../composables/useMediaQuery.ts";
 
 const hideKey = ref(true);
@@ -52,7 +52,7 @@ const isMobile = useMediaQuery("(max-width: 768px)");
         <div>
           <div class="is-flex is-flex-direction-column is-align-items-center">
             <div class="is-flex is-align-items-center">
-              <Logo width="100em" class="mr-1" />
+              <AppLogo width="100em" class="mr-1" />
               <p class="title" :style="{fontSize: '4em'}">bons</p>
             </div>
             <p>Eure Ausgaben. Alles im Blick.</p>
