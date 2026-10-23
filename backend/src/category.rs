@@ -4,7 +4,7 @@
 ///
 /// @category groceries { "en": "Groceries", "de": "Lebensmittel" }
 /// @category drugstore { "en": "Drugstore", "de": "Drogerie" }
-/// @category dining { "en": "Dining", "de": "Gastronomie" }
+/// @category dining { "en": "Dining", "de": "Essen gehen" }
 /// @category selfcare { "en": "Selfcare", "de": "Wellness" }
 /// @category fashion { "en": "Fashion", "de": "Mode" }
 /// @category leisure { "en": "Leisure", "de": "Freizeit" }

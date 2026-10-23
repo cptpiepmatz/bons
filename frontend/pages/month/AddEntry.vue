@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PhCaretDown } from "@phosphor-icons/vue";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import { categories } from "../../generated/categories.ts";
@@ -14,9 +14,8 @@ const dateLocaleOptions: Intl.DateTimeFormatOptions = {
   year: "numeric",
 };
 
-const categoryInput = ref("Aldi");
-const isClassifying = ref(false);
-const selectedCategory = ref<Category>("groceries");
+const isSpentInvalid = ref(false);
+const selectedCategory = ref<Category>("other");
 const isCategoryOpen = ref(false);
 const spentAt = ref(new Date());
 const spentAtInputDate = ref<HTMLInputElement | undefined>(undefined);
@@ -27,25 +26,9 @@ function selectCategory(category: Category) {
   isCategoryOpen.value = false;
 }
 
-async function testSuggestCategory() {
-  const text = categoryInput.value.trim();
-  if (!text || isClassifying.value) return;
-
-  isClassifying.value = true;
-  console.time("Category suggestion");
-  try {
-    const result = await suggestCategory(text);
-    if (result === undefined) {
-      console.info("No unambiguous category match.");
-    } else {
-      console.log(result);
-    }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    console.timeEnd("Category suggestion");
-    isClassifying.value = false;
-  }
+function onDescriptionInput(event: Event) {
+  const description = (event.target as HTMLInputElement).value;
+  selectedCategory.value = suggestCategory(description)?.category ?? "other";
 }
 </script>
 
@@ -59,10 +42,12 @@ async function testSuggestCategory() {
             <input
               id="spent"
               class="input"
+              :class="{ 'is-danger': isSpentInvalid }"
               type="text"
               inputmode="decimal"
               placeholder="0,00"
               pattern="^\d+([,.]\d{0,2})?$"
+              @input="isSpentInvalid = !($event.target as HTMLInputElement).validity.valid"
             >
           </p>
           <p class="control">
@@ -73,8 +58,13 @@ async function testSuggestCategory() {
           <label for="description">Beschreibung</label>
           <div class="field has-addons">
             <p class="control is-expanded">
-              <input id="description" class="input" type="text"
-                placeholder="z.B. Wochenmarkt">
+              <input
+                id="description"
+                class="input"
+                type="text"
+                placeholder="z.B. Wochenmarkt"
+                @input="onDescriptionInput"
+              >
             </p>
           </div>
         </div>
