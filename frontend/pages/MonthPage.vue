@@ -2,25 +2,41 @@
 import { Avatar, Style } from "@dicebear/core";
 import thumbs from "@dicebear/styles/thumbs.json" with { type: "json" };
 import { PhCaretDown } from "@phosphor-icons/vue";
-import { ref } from "vue";
+import { computed, effect, onMounted, ref, watch } from "vue";
 
 import type { Dayjs } from "dayjs";
 
 import Logo from "../components/Logo.vue";
+import { useMediaQuery } from "../composables/useMediaQuery.ts";
+import { getBulmaColor } from "../services/bulma.ts";
 import { suggestCategory } from "../services/classifier.ts";
 
 const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 const formattedMonth = monthDate.format("MMMM YYYY");
 const categoryInput = ref("Aldi");
 const isClassifying = ref(false);
+const backgroundColor = ref("#00000000");
+const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
 
+function updateBackgroundColor() {
+  backgroundColor.value = getBulmaColor("text-color", "text");
+}
+
+effect(() => console.log(backgroundColor.value));
+
+onMounted(updateBackgroundColor);
+watch(prefersDark, updateBackgroundColor, { flush: "post" });
+
+const userName = ref("Tim");
 const style = new Style(thumbs);
-const avatar = new Avatar(style, {
-  seed: "Tim",
-  scale: 0.9,
-  backgroundColor: ["#0F0"],
-  shapeColor: ["#B8245A"],
-}).toDataUri();
+const avatar = computed(() =>
+  new Avatar(style, {
+    seed: userName.value,
+    scale: 0.9,
+    backgroundColor: [backgroundColor.value],
+    shapeColor: ["#B8245A"],
+  }).toDataUri()
+);
 
 async function testSuggestCategory() {
   const text = categoryInput.value.trim();
@@ -45,6 +61,8 @@ async function testSuggestCategory() {
 </script>
 
 <style lang="scss" scoped>
+$content-width: 900px;
+
 .layout {
   height: 100%;
   width: 100%;
@@ -57,7 +75,7 @@ async function testSuggestCategory() {
 
   div {
     width: 100%;
-    max-width: 900px;
+    max-width: $content-width;
 
     left {
       img {
@@ -104,11 +122,11 @@ async function testSuggestCategory() {
           </div>
         </left>
         <right class="is-flex is-flex-direction-row is-align-items-center">
-          <img :src="avatar" alt="Avatar" class="avatar">
-          <p>Tim</p>
-          <span class="icon">
-            <PhCaretDown />
-          </span>
+          <img :src="avatar" alt="Avatar" class="avatar mr-2">
+          <a class="level has-text-current" style="gap: 0">
+            <span class="level-item">{{ userName }}</span>
+            <span class="level-item icon"><PhCaretDown /></span>
+          </a>
         </right>
       </div>
     </div>
