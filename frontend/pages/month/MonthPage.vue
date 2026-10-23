@@ -17,9 +17,15 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 
   main {
     flex-grow: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 
     > .columns {
       height: 100%;
+      width: 100%;
+      max-width: var(--content-width);
     }
   }
 }
@@ -31,8 +37,12 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
     <hr class="mt-0">
     <main>
       <div class="columns">
-        <MonthSummary :month-date="monthDate" class="column" />
-        <AddEntry class="column" />
+        <div class="column">
+          <MonthSummary :month-date="monthDate" />
+        </div>
+        <div class="column">
+          <AddEntry />
+        </div>
       </div>
     </main>
   </div>

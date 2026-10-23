@@ -3,6 +3,10 @@
   $family-primary: ("Inter Variable", sans-serif),
 );
 
+:root {
+  --content-width: 900px;
+}
+
 html {
   // override bulma's default behavior
   overflow-y: auto;

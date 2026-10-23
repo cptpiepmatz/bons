@@ -33,8 +33,6 @@ const avatar = computed(() =>
 </script>
 
 <style lang="scss" scoped>
-$content-width: 900px;
-
 .header {
   width: 100%;
   display: flex;
@@ -42,7 +40,7 @@ $content-width: 900px;
 
   div {
     width: 100%;
-    max-width: $content-width;
+    max-width: var(--content-width);
 
     left {
       img {
