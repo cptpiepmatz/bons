@@ -17,7 +17,8 @@ const isClassifying = ref(false);
 const style = new Style(thumbs);
 const avatar = new Avatar(style, {
   seed: "Tim",
-  backgroundColor: ["16161a"],
+  scale: 0.9,
+  backgroundColor: ["#0F0"],
   shapeColor: ["#B8245A"],
 }).toDataUri();
 
@@ -44,13 +45,6 @@ async function testSuggestCategory() {
 </script>
 
 <style lang="scss" scoped>
-.avatar {
-  width: 10rem;
-  height: 10rem;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
 .layout {
   height: 100%;
   width: 100%;
@@ -63,7 +57,31 @@ async function testSuggestCategory() {
 
   div {
     width: 100%;
-    max-width: 700px;
+    max-width: 900px;
+
+    left {
+      img {
+        width: 3em;
+        height: auto;
+      }
+
+      .title {
+        font-size: 2em;
+      }
+
+      p:not(.title) {
+        font-size: 1em;
+      }
+    }
+
+    right {
+      .avatar {
+        width: 2.3em;
+        height: auto;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+    }
   }
 }
 </style>
@@ -72,11 +90,18 @@ async function testSuggestCategory() {
   <div class="layout">
     <div class="header">
       <div
-        class="is-flex is-flex-direction-row is-justify-content-space-between">
+        class="
+          is-flex 
+          is-flex-direction-row 
+          is-justify-content-space-between
+          m-1
+        ">
         <left class="is-flex is-flex-direction-row is-align-items-center">
-          <Logo width="100em" class="mr-1" />
-          <p class="title" :style="{fontSize: '4em'}">bons</p>
-          <p>Eure Ausgaben. Alles im Blick.</p>
+          <Logo class="mr-1" />
+          <div class="is-flex is-flex-direction-row is-align-items-flex-end">
+            <p class="title mb-0">bons</p>
+            <p class="ml-2">Eure Ausgaben. Alles im Blick.</p>
+          </div>
         </left>
         <right class="is-flex is-flex-direction-row is-align-items-center">
           <img :src="avatar" alt="Avatar" class="avatar">
@@ -87,7 +112,7 @@ async function testSuggestCategory() {
         </right>
       </div>
     </div>
-    <hr>
+    <hr class="mt-0">
     <div></div>
   </div>
 </template>
