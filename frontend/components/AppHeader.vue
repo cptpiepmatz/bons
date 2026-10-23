@@ -42,7 +42,7 @@ const avatar = computed(() =>
     width: 100%;
     max-width: var(--content-width);
 
-    left {
+    .left {
       img {
         width: 3em;
         height: auto;
@@ -57,7 +57,7 @@ const avatar = computed(() =>
       }
     }
 
-    right {
+    .right {
       .avatar {
         width: 2.3em;
         height: auto;
@@ -78,20 +78,20 @@ const avatar = computed(() =>
         is-justify-content-space-between
         m-1
       ">
-      <left class="is-flex is-flex-direction-row is-align-items-center">
+      <div class="left is-flex is-flex-direction-row is-align-items-center">
         <AppLogo class="mr-1" />
         <div class="is-flex is-flex-direction-row is-align-items-flex-end">
           <p class="title mb-0">bons</p>
           <p class="ml-2">Eure Ausgaben. Alles im Blick.</p>
         </div>
-      </left>
-      <right class="is-flex is-flex-direction-row is-align-items-center">
+      </div>
+      <div class="right is-flex is-flex-direction-row is-align-items-center">
         <img :src="avatar" alt="Avatar" class="avatar mr-2">
         <a class="level has-text-current" style="gap: 0">
           <span class="level-item">{{ userName }}</span>
           <span class="level-item icon"><PhCaretDown /></span>
         </a>
-      </right>
+      </div>
     </div>
   </div>
 </template>

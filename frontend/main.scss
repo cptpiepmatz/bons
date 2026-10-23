@@ -7,6 +7,13 @@
   --content-width: 1000px;
 }
 
+// match button.is-x sizing while preserving button.is-static outline
+.button.is-static {
+  --bulma-button-border-width: 0px;
+  box-shadow: inset 0 0 0 var(--bulma-control-border-width)
+    var(--bulma-button-static-border-color);
+}
+
 html {
   // override bulma's default behavior
   overflow-y: auto;
