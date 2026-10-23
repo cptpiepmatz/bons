@@ -11,20 +11,16 @@ const isMobile = useMediaQuery("(max-width: 768px)");
 </script>
 
 <style lang="scss" scoped>
+@use "../styles/mixins";
+
 .layout {
+  @include mixins.desktop-background;
+
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
   width: 100%;
-
-  @media (min-width: 769px) {
-    background-color: var(--bulma-white-ter);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--bulma-black-ter);
-    }
-  }
 
   > * {
     max-width: 30rem;

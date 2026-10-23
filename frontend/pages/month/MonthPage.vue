@@ -9,11 +9,19 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 </script>
 
 <style lang="scss" scoped>
+@use "../../styles/mixins";
+
 .layout {
+  @include mixins.desktop-background;
+
   height: 100%;
   width: 100%;
   display: flex;
   flex-direction: column;
+
+  > hr {
+    background-color: var(--bulma-border);
+  }
 
   main {
     flex-grow: 1;
@@ -26,6 +34,7 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
       height: 100%;
       width: 100%;
       max-width: var(--content-width);
+      margin: 0;
     }
   }
 }
@@ -34,13 +43,13 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 <template>
   <div class="layout">
     <AppHeader />
-    <hr class="mt-0">
+    <hr class="m-0">
     <main>
       <div class="columns">
-        <div class="column">
+        <div class="column is-two-thirds pr-0">
           <MonthSummary :month-date="monthDate" />
         </div>
-        <div class="column">
+        <div class="column is-one-third">
           <AddEntry />
         </div>
       </div>
