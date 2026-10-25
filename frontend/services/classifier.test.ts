@@ -86,7 +86,7 @@ Deno.test("handles merchant substitutions, insertions, deletions and swapped let
       ["Adli Süd Berlin", "groceries"],
       ["Rossman", "drugstore"],
       ["Rassman", "drugstore"],
-      ["Deutcshe Bahn Berlin", "transport"],
+      ["Deutcshe Bahm Berlin", "transport"],
     ]
   ) {
     expect(suggestCategory(input)?.category, input).toBe(expected);
