@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { PhAcorn, PhCaretLeft, PhCaretRight } from "@phosphor-icons/vue";
+import {
+  PhAcorn,
+  PhCaretLeft,
+  PhCaretRight,
+  PhPencilSimple,
+} from "@phosphor-icons/vue";
 import dayjs, { type Dayjs } from "dayjs";
 import { computed, effect, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -111,6 +116,11 @@ const topCategories = computed(() => {
     .slice(0, 4);
 });
 
+const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
+  day: "numeric",
+  month: "short",
+});
+
 effect(() => console.log(topCategories.value));
 </script>
 
@@ -203,8 +213,44 @@ effect(() => console.log(topCategories.value));
       </div>
     </div>
     <hr>
-    <div class="card-content">
-      ghi
+    <div class="card-content pt-3">
+      <p class="title is-6 mb-2">Alle Ausgaben</p>
+      <div class="table-container">
+        <table class="table is-fullwidth">
+          <tbody>
+            <tr v-for="spending in spendingEntries">
+              <td class="is-narrow">
+                <p
+                  class="icon is-medium spending-icon has-text-primary has-background-primary-bold">
+                  <CategoryIcon :category="spending.category" size="1.5em" />
+                </p>
+              </td>
+              <td>
+                <div>
+                  <p
+                    class="spending-description has-text-weight-semibold">{{ spending.description }}</p>
+                  <p class="spending-meta">
+                    <span>{{ spentAtFormatter.format(dayjs(spending.spent_at).toDate()) }}</span>
+                    <span>&middot;</span>
+                    <span>User</span>
+                    <span>&middot;</span>
+                    <span>{{ categoryDisplayNames[spending.category].de }}</span>
+                  </p>
+                </div>
+              </td>
+              <td
+                class="is-narrow has-text-right has-text-weight-extrabold is-size-5">
+              {{ currencyFormatter && Money.fromCents(spending.spent_cents).format(currencyFormatter) }}
+            </td>
+              <td class="is-narrow">
+                <a class="icon has-text-current">
+                  <PhPencilSimple />
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -217,5 +263,24 @@ effect(() => console.log(topCategories.value));
 
 hr {
   margin: 0;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+}
+
+.spending-icon {
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.spending-description {
+  font-size: 0.9em;
+  // font-weight: 600;
+}
+.spending-meta {
+  font-size: 0.8em;
+  color: var(--bulma-text);
 }
 </style>
