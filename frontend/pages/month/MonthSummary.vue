@@ -12,6 +12,8 @@ import { Money } from "../../models/money";
 const { currencyFormatter } = useCurrency();
 const router = useRouter();
 
+const monthDateInput = ref();
+
 const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 
 function navigateMonth(offset: number) {
@@ -84,23 +86,41 @@ const totalSpent = computed(() =>
   <div class="card" style="height: 100%;">
     <div class="card-content">
       <div class="is-flex is-flex-direction-column is-align-items-center">
-        <div class="is-flex is-flex-direction-row is-align-items-center mb-2">
-          <button class="button is-small" @click="navigateMonth(-1)">
-            <span class="icon is-large">
-              <PhCaretLeft />
-            </span>
-          </button>
-          <p class="has-text-weight-bold"
-            style="width: 10em; text-align: center;">{{ monthDate.format("MMMM YYYY") }}</p>
-          <button class="button is-small" @click="navigateMonth(1)">
-            <span class="icon is-large">
-              <PhCaretRight />
-            </span>
-          </button>
+        <div class="field has-addons">
+          <p class="control">
+            <button class="button">
+              <span class="icon is-large">
+                <PhCaretLeft />
+              </span>
+            </button>
+          </p>
+          <input
+            class="button"
+            type="month"
+            ref="monthDateInput"
+            style="visibility: hidden; width: 10rem; position: absolute;"
+          />
+          <p class="control">
+            <button
+              class="button"
+              style="width: 10rem;"
+              @click="monthDateInput.showPicker()"
+            >
+              <span>{{ monthDate.format("MMMM YYYY") }}</span>
+            </button>
+          </p>
+          <p class="control">
+            <button class="button">
+              <span class="icon is-large">
+                <PhCaretRight />
+              </span>
+            </button>
+          </p>
         </div>
         <div>
-          <p
-            class="title">{{ currencyFormatter ? totalSpent.format(currencyFormatter) : "&ensp;" }}</p>
+          <p class="title">
+            {{ currencyFormatter ? totalSpent.format(currencyFormatter) : "&ensp;" }}
+          </p>
         </div>
         <div>
           <p>Insgesamt ausgegeben</p>
