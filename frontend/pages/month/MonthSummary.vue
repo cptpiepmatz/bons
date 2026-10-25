@@ -1,25 +1,25 @@
 <script setup lang="ts">
 import {
-  PhAcorn,
   PhCaretDown,
   PhCaretLeft,
   PhCaretRight,
   PhPencilSimple,
 } from "@phosphor-icons/vue";
 import dayjs, { type Dayjs } from "dayjs";
-import { computed, effect, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import { Category } from "../../../bindings/Category";
 import { SpendingResponse } from "../../../bindings/SpendingResponse";
 import CategoryIcon from "../../components/CategoryIcon.vue";
+import { useAuth } from "../../composables/useAuth.ts";
 import { useCurrency } from "../../composables/useCurrency";
 import {
-  categories,
   categoryDisplayNames,
   categoryRecord,
 } from "../../generated/categories";
 import { Money } from "../../models/money";
+import { getMonth } from "../../models/month.ts";
 import {
   sortOptionDisplayNames,
   type SortOptions,
@@ -27,6 +27,7 @@ import {
 } from "../../models/sortOptions";
 
 const { currencyFormatter } = useCurrency();
+const { user } = useAuth();
 const router = useRouter();
 
 const monthDateInput = ref<HTMLInputElement>();
@@ -50,14 +51,20 @@ onUnmounted(() => {
   document.removeEventListener("click", closeSortMenuOnOutsideClick);
 });
 
-const { monthDate } = defineProps<{ monthDate: Dayjs }>();
+const { monthDate, spendingEntries, isLoading, error } = defineProps<{
+  monthDate: Dayjs;
+  spendingEntries: readonly SpendingResponse[];
+  isLoading: boolean;
+  error?: string;
+}>();
+const emit = defineEmits<{ retry: [] }>();
 
 function navigateMonth(date: Dayjs) {
   return router.push({
     name: "month",
     params: {
       year: date.format("YYYY"),
-      month: date.locale("en").format("MMMM").toLowerCase(),
+      month: getMonth(date),
     },
   });
 }
@@ -71,55 +78,8 @@ function selectMonth() {
   return navigateMonth(date);
 }
 
-const spendingEntries = ref<SpendingResponse[]>([
-  {
-    id: 1,
-    spent_cents: 8649,
-    description: "Wocheneinkauf bei REWE",
-    category: "groceries",
-    user_id: 1,
-    spent_at: monthDate.startOf("month").add(12, "day").unix(),
-    created_at: monthDate.startOf("month").add(12, "day").unix(),
-  },
-  {
-    id: 2,
-    spent_cents: 1275,
-    description: "Drogerieartikel bei dm",
-    category: "drugstore",
-    user_id: 1,
-    spent_at: monthDate.startOf("month").add(3, "day").unix(),
-    created_at: monthDate.startOf("month").add(3, "day").unix(),
-  },
-  {
-    id: 3,
-    spent_cents: 4250,
-    description: "Abendessen beim Italiener",
-    category: "dining",
-    user_id: 1,
-    spent_at: monthDate.startOf("month").add(20, "day").unix(),
-    created_at: monthDate.startOf("month").add(20, "day").unix(),
-  },
-  {
-    id: 4,
-    spent_cents: 320,
-    description: "Fahrkarte für die Straßenbahn",
-    category: "transport",
-    user_id: 1,
-    spent_at: monthDate.startOf("month").add(7, "day").unix(),
-    created_at: monthDate.startOf("month").add(7, "day").unix(),
-  },
-  {
-    id: 5,
-    spent_cents: 2990,
-    description: "Geburtstagsgeschenk für Mama",
-    category: "gifts",
-    user_id: 1,
-    spent_at: monthDate.startOf("month").add(16, "day").unix(),
-    created_at: monthDate.startOf("month").add(16, "day").unix(),
-  },
-]);
 const sortedSpendingEntries = computed(() =>
-  [...spendingEntries.value].sort((a, b) => {
+  [...spendingEntries].sort((a, b) => {
     switch (selectedSortOption.value) {
       case "newest":
         return b.spent_at - a.spent_at;
@@ -133,11 +93,8 @@ const sortedSpendingEntries = computed(() =>
   })
 );
 
-effect(() => console.log(sortedSpendingEntries.value));
-
 const totalSpent = computed(() =>
   spendingEntries
-    .value
     .map(({ spent_cents }) => Money.fromCents(spent_cents))
     .reduce((sum, entry) => sum.add(entry), Money.ZERO)
 );
@@ -145,7 +102,6 @@ const totalSpent = computed(() =>
 const topCategories = computed(() => {
   const spendingPerCategory = categoryRecord((category) =>
     spendingEntries
-      .value
       .filter((entry) => entry.category == category)
       .map(({ spent_cents }) => Money.fromCents(spent_cents))
       .reduce((sum, entry) => sum.add(entry), Money.ZERO)
@@ -209,14 +165,21 @@ const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
         </div>
         <div>
           <p class="title">
-            {{ currencyFormatter ? totalSpent.format(currencyFormatter) : "&ensp;" }}
+            {{ !isLoading && !error && currencyFormatter ? totalSpent.format(currencyFormatter) : "&ensp;" }}
           </p>
         </div>
         <div>
           <p class="is-size-7">Insgesamt ausgegeben</p>
         </div>
         <div>
-          <p v-if="spendingEntries.length">
+          <p v-if="isLoading" role="status">Ausgaben werden geladen …</p>
+          <div v-else-if="error" role="alert" class="has-text-danger">
+            <p>Ausgaben konnten nicht geladen werden.</p>
+            <p class="is-size-7">{{ error }}</p>
+            <button class="button is-small mt-2"
+              @click="emit('retry')">Erneut versuchen</button>
+          </div>
+          <p v-else-if="spendingEntries.length">
             {{ spendingEntries.length }} Ausgaben
           </p>
           <p v-else>
@@ -272,8 +235,8 @@ const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
                 @click="isSortMenuActive = !isSortMenuActive"
               >
                 <span class="level-item is-size-7">
-        {{ sortOptionDisplayNames[selectedSortOption].de }}
-      </span>
+                  {{ sortOptionDisplayNames[selectedSortOption].de }}
+                </span>
                 <span class="icon is-small level-item">
                   <PhCaretDown />
                 </span>
@@ -287,8 +250,8 @@ const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
                   class="dropdown-item"
                   @click="selectedSortOption = option; isSortMenuActive = false"
                 >
-        {{ sortOptionDisplayNames[option].de }}
-      </a>
+                  {{ sortOptionDisplayNames[option].de }}
+                </a>
               </div>
             </div>
           </div>
@@ -319,7 +282,7 @@ const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
                     <span class="level-left is-gap-1">
                       <span>{{ spentAtFormatter.format(dayjs.unix(spending.spent_at).toDate()) }}</span>
                       <span>&middot;</span>
-                      <span>User</span>
+                      <span>{{ spending.user_id === user?.id ? user.name : `User ${spending.user_id}` }}</span>
                       <span>&middot;</span>
                       <span>{{ categoryDisplayNames[spending.category].de }}</span>
                     </span>

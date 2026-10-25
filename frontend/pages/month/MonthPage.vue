@@ -2,10 +2,14 @@
 import type { Dayjs } from "dayjs";
 
 import AppHeader from "../../components/AppHeader.vue";
+import { useMonthSpending } from "../../composables/useMonthSpending.ts";
 import AddEntry from "./AddEntry.vue";
 import MonthSummary from "./MonthSummary.vue";
 
 const { monthDate } = defineProps<{ monthDate: Dayjs }>();
+const { spendingEntries, isLoading, error, refresh } = useMonthSpending(() =>
+  monthDate
+);
 </script>
 
 <style lang="scss" scoped>
@@ -47,10 +51,16 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
     <main class="is-flex is-flex-grow-1 is-justify-content-center">
       <div class="columns content-width m-0">
         <div class="column is-two-thirds pr-0">
-          <MonthSummary :month-date="monthDate" />
+          <MonthSummary
+            :month-date="monthDate"
+            :spending-entries="spendingEntries"
+            :is-loading="isLoading"
+            :error="error"
+            @retry="refresh"
+          />
         </div>
         <div class="column is-one-third">
-          <AddEntry />
+          <AddEntry :month-date="monthDate" @created="refresh" />
         </div>
       </div>
     </main>
