@@ -62,6 +62,16 @@ export function generateCategories(binding: string): string {
     `export const categoryDisplayNames = {`,
     ...entries,
     `} as const satisfies Record<Category, Record<"en" | "de", string>>;`,
+    ``,
+    `export function categoryRecord<T>(`,
+    `  generate: (category: Category) => T,`,
+    `): Record<Category, T> {`,
+    `  return {`,
+    ...ids.map((id) =>
+      `    ${JSON.stringify(id)}: generate(${JSON.stringify(id)}),`
+    ),
+    `  };`,
+    `}`,
   ].join("\n");
 }
 
