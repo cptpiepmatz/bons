@@ -55,7 +55,11 @@ export function generateCategories(binding: string): string {
     ``,
     `import type { Category } from "../../bindings/Category.ts";`,
     ``,
-    `export const categories = {`,
+    `export const categories = [`,
+    ...ids.map((id) => `  ${JSON.stringify(id)},`),
+    `] as const satisfies readonly Category[];`,
+    ``,
+    `export const categoryDisplayNames = {`,
     ...entries,
     `} as const satisfies Record<Category, Record<"en" | "de", string>>;`,
   ].join("\n");

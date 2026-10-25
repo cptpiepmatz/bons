@@ -12,7 +12,10 @@ import { computed, effect, onMounted, onUnmounted, ref, watch } from "vue";
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import UserAvatar from "../../components/UserAvatar.vue";
 import { useCurrency } from "../../composables/useCurrency.ts";
-import { categories } from "../../generated/categories.ts";
+import {
+  categories,
+  categoryDisplayNames,
+} from "../../generated/categories.ts";
 import { Money } from "../../models/money.ts";
 import { suggestCategory } from "../../services/classifier.ts";
 
@@ -147,25 +150,25 @@ function onDescriptionInput(event: Event) {
                     <CategoryIcon :category="selectedCategory" />
                   </span>
                   <span
-                    class="category-label">{{ categories[selectedCategory].de }}</span>
+                    class="category-label">{{ categoryDisplayNames[selectedCategory].de }}</span>
                   <span class="icon is-small"><PhCaretDown /></span>
                 </button>
               </div>
               <div id="category-dropdown" class="dropdown-menu">
                 <div class="dropdown-content">
                   <button
-                    v-for="(value, key) in categories"
-                    :key="key"
+                    v-for="category in categories"
+                    :key="category"
                     type="button"
                     class="dropdown-item is-flex is-align-items-center"
-                    :class="{ 'is-active': selectedCategory === key }"
-                    :aria-pressed="selectedCategory === key"
-                    @click="selectCategory(key)"
+                    :class="{ 'is-active': selectedCategory === category }"
+                    :aria-pressed="selectedCategory === category"
+                    @click="selectCategory(category)"
                   >
                     <span class="icon is-small mr-2">
-                      <CategoryIcon :category="key" />
+                      <CategoryIcon :category="category" />
                     </span>
-                    <span>{{ value.de }}</span>
+                    <span>{{ categoryDisplayNames[category].de }}</span>
                   </button>
                 </div>
               </div>
