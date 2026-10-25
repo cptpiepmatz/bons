@@ -8,6 +8,11 @@
   --content-width: 1000px;
 }
 
+.content-width {
+  width: 100%;
+  max-width: var(--content-width);
+}
+
 // match button.is-x sizing while preserving button.is-static outline
 .button.is-static {
   --bulma-button-border-width: 0px;

@@ -140,12 +140,12 @@ effect(() => console.log(topCategories.value));
             </button>
           </p>
           <input
-            class="button is-small"
+            class="button is-small is-invisible is-position-absolute"
             type="month"
             ref="monthDateInput"
             :value="monthDate.format('YYYY-MM')"
             @change="selectMonth"
-            style="visibility: hidden; width: 10rem; position: absolute;"
+            style="width: 10rem;"
           />
           <p class="control">
             <button
@@ -185,14 +185,14 @@ effect(() => console.log(topCategories.value));
         </div>
       </div>
     </div>
-    <hr>
+    <hr class="m-0">
     <div class="card-content py-3">
       <p class="title is-6 mb-2">Nach Kategorien</p>
       <div class="fixed-grid">
         <div class="grid">
           <div
             v-for="[category, spent] in topCategories"
-            class="category-summary py-2 px-4"
+            class="category-summary has-radius-normal py-2 px-4"
           >
             <div
               class="is-flex is-flex-direction-row is-align-items-center is-gap-1">
@@ -212,30 +212,31 @@ effect(() => console.log(topCategories.value));
         </div>
       </div>
     </div>
-    <hr>
+    <hr class="m-0">
     <div class="card-content pt-3">
       <p class="title is-6 mb-2">Alle Ausgaben</p>
       <div class="table-container">
         <table class="table is-fullwidth">
           <tbody>
             <tr v-for="spending in spendingEntries">
-              <td class="is-narrow">
+              <td class="is-narrow is-vcentered">
                 <p class="
                   icon 
                   is-medium 
-                  spending-icon 
+                  has-radius-rounded
+                  is-clipped
                   has-text-primary 
                   has-background-primary-light
                 ">
                   <CategoryIcon :category="spending.category" size="1.5em" />
                 </p>
               </td>
-              <td>
+              <td class="is-vcentered">
                 <div>
                   <p class="spending-description has-text-weight-semibold">
                     {{ spending.description }}
                   </p>
-                  <p class="spending-meta">
+                  <p class="is-size-7 has-text-text">
                     <span>{{ spentAtFormatter.format(dayjs(spending.spent_at).toDate()) }}</span>
                     <span>&middot;</span>
                     <span>User</span>
@@ -246,13 +247,14 @@ effect(() => console.log(topCategories.value));
               </td>
               <td class="
                 is-narrow 
+                is-vcentered
                 has-text-right 
                 has-text-weight-extrabold 
                 is-size-5
               ">
               {{ currencyFormatter && Money.fromCents(spending.spent_cents).format(currencyFormatter) }}
             </td>
-              <td class="is-narrow">
+              <td class="is-narrow is-vcentered">
                 <a class="icon has-text-current">
                   <PhPencilSimple />
                 </a>
@@ -268,29 +270,9 @@ effect(() => console.log(topCategories.value));
 <style scoped lang="scss">
 .category-summary {
   border: var(--bulma-control-border-width) solid var(--bulma-border);
-  border-radius: var(--bulma-radius);
-}
-
-hr {
-  margin: 0;
-}
-
-.table td,
-.table th {
-  vertical-align: middle;
-}
-
-.spending-icon {
-  border-radius: 50%;
-  overflow: hidden;
 }
 
 .spending-description {
   font-size: 0.9em;
-  // font-weight: 600;
-}
-.spending-meta {
-  font-size: 0.8em;
-  color: var(--bulma-text);
 }
 </style>

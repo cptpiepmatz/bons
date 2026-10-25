@@ -12,29 +12,9 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 .layout {
   height: 100%;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-
-  > :not(main) {
-    flex-shrink: 0;
-  }
 
   > hr {
     background-color: var(--bulma-border);
-  }
-
-  main {
-    flex-grow: 1;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-
-    > .columns {
-      width: 100%;
-      max-width: var(--content-width);
-      margin: 0;
-    }
   }
 
   @media (min-width: 769px) {
@@ -61,11 +41,11 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 </style>
 
 <template>
-  <div class="layout">
-    <AppHeader />
-    <hr class="m-0">
-    <main>
-      <div class="columns">
+  <div class="layout is-flex is-flex-direction-column">
+    <AppHeader class="is-flex-shrink-0" />
+    <hr class="m-0 is-flex-shrink-0">
+    <main class="is-flex is-flex-grow-1 is-justify-content-center">
+      <div class="columns content-width m-0">
         <div class="column is-two-thirds pr-0">
           <MonthSummary :month-date="monthDate" />
         </div>

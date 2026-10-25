@@ -31,11 +31,10 @@ const avatar = computed(() =>
 
 <style lang="scss" scoped>
 img {
-  border-radius: 50%;
   object-fit: cover;
 }
 </style>
 
 <template>
-  <img :src="avatar" alt="Avatar">
+  <img :src="avatar" alt="Avatar" class="has-radius-rounded">
 </template>

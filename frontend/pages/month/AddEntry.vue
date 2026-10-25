@@ -81,7 +81,7 @@ function onDescriptionInput(event: Event) {
 <template>
   <div class="card">
     <div class="card-content">
-      <div class="block">
+      <div class="block mb-2">
         <div class="is-flex is-flex-direction-row is-align-items-center">
           <span class="icon has-text-primary is-large">
             <PhPlusSquare weight="fill" size="2.5em" />
@@ -92,8 +92,8 @@ function onDescriptionInput(event: Event) {
           </div>
         </div>
       </div>
-      <div class="block">
-        <label class="label" for="spent">Betrag</label>
+      <div class="block mb-2">
+        <label class="label mb-0" for="spent">Betrag</label>
         <div class="field has-addons">
           <p class="control is-expanded">
             <input
@@ -112,8 +112,8 @@ function onDescriptionInput(event: Event) {
           </p>
         </div>
       </div>
-      <div class="block">
-        <label class="label" for="description">Beschreibung</label>
+      <div class="block mb-2">
+        <label class="label mb-0" for="description">Beschreibung</label>
         <div class="field has-addons">
           <p class="control is-expanded">
             <input
@@ -126,13 +126,13 @@ function onDescriptionInput(event: Event) {
           </p>
         </div>
       </div>
-      <div class="block">
-        <label class="label" for="category">Kategorie</label>
+      <div class="block mb-2">
+        <label class="label mb-0" for="category">Kategorie</label>
         <div class="field has-addons">
           <div class="control is-expanded">
             <input type="hidden" name="category" :value="selectedCategory">
             <div
-              class="dropdown category-dropdown"
+              class="dropdown is-block"
               :class="{ 'is-active': isCategoryOpen }"
               @click.stop
               @keydown.esc.stop.prevent="isCategoryOpen = false"
@@ -150,12 +150,12 @@ function onDescriptionInput(event: Event) {
                     <CategoryIcon :category="selectedCategory" />
                   </span>
                   <span
-                    class="category-label">{{ categoryDisplayNames[selectedCategory].de }}</span>
+                    class="is-flex-grow-1 has-text-left">{{ categoryDisplayNames[selectedCategory].de }}</span>
                   <span class="icon is-small"><PhCaretDown /></span>
                 </button>
               </div>
               <div id="category-dropdown" class="dropdown-menu">
-                <div class="dropdown-content">
+                <div class="dropdown-content is-overflow-y-auto">
                   <button
                     v-for="category in categories"
                     :key="category"
@@ -176,16 +176,15 @@ function onDescriptionInput(event: Event) {
           </div>
         </div>
       </div>
-      <div class="block">
-        <label class="label" for="spent_at">Datum</label>
+      <div class="block mb-2">
+        <label class="label mb-0" for="spent_at">Datum</label>
         <div class="field has-addons">
           <p class="control is-expanded has-icons-right">
             <input
-              class="input"
+              class="input is-position-absolute is-invisible"
               id="spent_at"
               type="date"
               ref="spentAtInputDate"
-              style="position: absolute; visibility: hidden;"
               @change="spentAt = dayjs(spentAtInputDate!.value)"
               @blur="spentAtInputText?.blur"
             >
@@ -203,7 +202,7 @@ function onDescriptionInput(event: Event) {
           </p>
         </div>
       </div>
-      <p class="icon-text mb-1" style="font-size: 0.8em">
+      <p class="icon-text is-size-7 mb-1">
         <span class="icon">
           <PhPencilSimple weight="fill" />
         </span>
@@ -217,28 +216,12 @@ function onDescriptionInput(event: Event) {
 </template>
 
 <style scoped>
-.category-dropdown,
-.category-dropdown .dropdown-trigger,
-.category-dropdown .dropdown-menu {
+.dropdown-menu {
   width: 100%;
 }
 
-.label {
-  margin-bottom: 0;
-}
-
-.block {
-  --bulma-block-spacing: 0.6em;
-}
-
-.category-label {
-  flex: 1;
-  text-align: left;
-}
-
-.category-dropdown .dropdown-content {
+.dropdown-content {
   max-height: min(18rem, 30dvh);
-  overflow-y: auto;
   overscroll-behavior-y: contain;
 }
 </style>

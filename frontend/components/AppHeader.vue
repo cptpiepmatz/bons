@@ -12,30 +12,30 @@ const userName = ref("Tim");
 </script>
 
 <template>
-  <div class="header">
+  <div class="is-flex is-justify-content-center">
     <div
       class="
         is-flex
-        is-flex-direction-row
         is-justify-content-space-between
+        content-width
         m-1
       ">
       <a
-        class="left has-text-current"
+        class="is-flex is-align-items-center is-flex-grow-1 has-text-current"
         href="/"
         @click.prevent="router.push('/')"
       >
-        <AppLogo class="mr-1" />
+        <AppLogo class="logo mr-1" />
         <div class="is-flex is-flex-direction-row is-align-items-flex-end">
-          <p class="title mb-0">bons</p>
+          <p class="title is-size-3 mb-0">bons</p>
           <p class="ml-2">Eure Ausgaben. Alles im Blick.</p>
         </div>
       </a>
-      <div class="right">
+      <div class="is-flex is-align-items-center is-justify-content-flex-end">
         <UserAvatar :user-name="userName" class="avatar mr-2" />
-        <a class="level has-text-current" style="gap: 0">
-          <span class="level-item">{{ userName }}</span>
-          <span class="level-item icon"><PhCaretDown /></span>
+        <a class="is-flex is-align-items-center has-text-current">
+          <span>{{ userName }}</span>
+          <span class="icon"><PhCaretDown /></span>
         </a>
       </div>
     </div>
@@ -43,46 +43,13 @@ const userName = ref("Tim");
 </template>
 
 <style lang="scss" scoped>
-.header {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+.logo {
+  width: 3em;
+  height: auto;
+}
 
-  div {
-    width: 100%;
-    max-width: var(--content-width);
-
-    .left {
-      width: 100%;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-
-      img {
-        width: 3em;
-        height: auto;
-      }
-
-      .title {
-        font-size: 2em;
-      }
-
-      p:not(.title) {
-        font-size: 1em;
-      }
-    }
-
-    .right {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-end;
-
-      .avatar {
-        width: 2.3em;
-        height: auto;
-      }
-    }
-  }
+.avatar {
+  width: 2.3em;
+  height: auto;
 }
 </style>

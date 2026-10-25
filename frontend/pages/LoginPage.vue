@@ -12,9 +12,6 @@ const isMobile = useMediaQuery("(max-width: 768px)");
 
 <style lang="scss" scoped>
 .layout {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 100%;
   width: 100%;
 
@@ -26,11 +23,6 @@ const isMobile = useMediaQuery("(max-width: 768px)");
 .eye {
   color: var(--bulma-input-icon-color) !important;
 
-  > * {
-    pointer-events: auto;
-    cursor: pointer;
-  }
-
   > :hover {
     color: var(--bulma-input-icon-hover-color) !important;
   }
@@ -38,7 +30,7 @@ const isMobile = useMediaQuery("(max-width: 768px)");
 </style>
 
 <template>
-  <div class="layout">
+  <div class="layout is-flex is-align-items-center is-justify-content-center">
     <div :class="isMobile ? 'm-4' : 'card'">
       <div :class="isMobile ? '' : 'card-content'">
         <div>
@@ -61,8 +53,7 @@ const isMobile = useMediaQuery("(max-width: 768px)");
           </div>
           <div class="block">
             <div
-              :style="{fontSize: '0.8em', fontWeight: 'bold'}"
-              class="mb-1"
+              class="is-size-7 has-text-weight-bold mb-1"
             >
               Zugangsschlüssel
             </div>
@@ -76,8 +67,8 @@ const isMobile = useMediaQuery("(max-width: 768px)");
                 class="icon is-small is-right eye"
                 @click="hideKey = !hideKey"
               >
-                <PhEye v-if="hideKey" weight="bold" />
-                <PhEyeSlash v-else weight="bold" />
+                <PhEye v-if="hideKey" weight="bold" class="is-clickable" />
+                <PhEyeSlash v-else weight="bold" class="is-clickable" />
               </span>
             </div>
           </div>
@@ -88,7 +79,7 @@ const isMobile = useMediaQuery("(max-width: 768px)");
             >
             Los geht's
           </button>
-            <p :style="{fontSize: '0.7em'}">
+            <p class="is-size-7">
               Noch keinen Schlüssel? Frag bei der Person nach, die bons eingerichtet hat.
             </p>
           </div>
