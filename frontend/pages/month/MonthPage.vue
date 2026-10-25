@@ -16,6 +16,7 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
   flex-direction: column;
 
   > hr {
+    flex-shrink: 0;
     background-color: var(--bulma-border);
   }
 
