@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import {
   PhAcorn,
+  PhCaretDown,
   PhCaretLeft,
   PhCaretRight,
   PhPencilSimple,
 } from "@phosphor-icons/vue";
 import dayjs, { type Dayjs } from "dayjs";
-import { computed, effect, ref } from "vue";
+import { computed, effect, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import { Category } from "../../../bindings/Category";
@@ -19,11 +20,29 @@ import {
   categoryRecord,
 } from "../../generated/categories";
 import { Money } from "../../models/money";
+import { sortOptionDisplayNames, sortOptions, type SortOptions } from "../../models/sortOptions";
 
 const { currencyFormatter } = useCurrency();
 const router = useRouter();
 
 const monthDateInput = ref<HTMLInputElement>();
+const selectedSortOption = ref<SortOptions>("newest");
+const isSortMenuActive = ref(false);
+const sortDropdown = ref<HTMLDivElement>();
+
+function closeSortMenuOnOutsideClick(event: MouseEvent) {
+  if (event.target instanceof Node && !sortDropdown.value?.contains(event.target)) {
+    isSortMenuActive.value = false;
+  }
+}
+
+onMounted(() => {
+  document.addEventListener("click", closeSortMenuOnOutsideClick);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", closeSortMenuOnOutsideClick);
+});
 
 const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 
@@ -49,21 +68,21 @@ function selectMonth() {
 const spendingEntries = ref<SpendingResponse[]>([
   {
     id: 1,
-    spent_cents: 6849,
+    spent_cents: 8649,
     description: "Wocheneinkauf bei REWE",
     category: "groceries",
     user_id: 1,
-    spent_at: monthDate.startOf("month").add(2, "day").unix(),
-    created_at: monthDate.startOf("month").add(2, "day").unix(),
+    spent_at: monthDate.startOf("month").add(12, "day").unix(),
+    created_at: monthDate.startOf("month").add(12, "day").unix(),
   },
   {
     id: 2,
-    spent_cents: 1875,
+    spent_cents: 1275,
     description: "Drogerieartikel bei dm",
     category: "drugstore",
     user_id: 1,
-    spent_at: monthDate.startOf("month").add(4, "day").unix(),
-    created_at: monthDate.startOf("month").add(4, "day").unix(),
+    spent_at: monthDate.startOf("month").add(3, "day").unix(),
+    created_at: monthDate.startOf("month").add(3, "day").unix(),
   },
   {
     id: 3,
@@ -71,8 +90,8 @@ const spendingEntries = ref<SpendingResponse[]>([
     description: "Abendessen beim Italiener",
     category: "dining",
     user_id: 1,
-    spent_at: monthDate.startOf("month").add(7, "day").unix(),
-    created_at: monthDate.startOf("month").add(7, "day").unix(),
+    spent_at: monthDate.startOf("month").add(20, "day").unix(),
+    created_at: monthDate.startOf("month").add(20, "day").unix(),
   },
   {
     id: 4,
@@ -80,19 +99,36 @@ const spendingEntries = ref<SpendingResponse[]>([
     description: "Fahrkarte für die Straßenbahn",
     category: "transport",
     user_id: 1,
-    spent_at: monthDate.startOf("month").add(9, "day").unix(),
-    created_at: monthDate.startOf("month").add(9, "day").unix(),
+    spent_at: monthDate.startOf("month").add(7, "day").unix(),
+    created_at: monthDate.startOf("month").add(7, "day").unix(),
   },
   {
     id: 5,
-    spent_cents: 2490,
+    spent_cents: 2990,
     description: "Geburtstagsgeschenk für Mama",
     category: "gifts",
     user_id: 1,
-    spent_at: monthDate.startOf("month").add(12, "day").unix(),
-    created_at: monthDate.startOf("month").add(12, "day").unix(),
+    spent_at: monthDate.startOf("month").add(16, "day").unix(),
+    created_at: monthDate.startOf("month").add(16, "day").unix(),
   },
 ]);
+const sortedSpendingEntries = computed(() =>
+  [...spendingEntries.value].sort((a, b) => {
+    switch (selectedSortOption.value) {
+      case "newest":
+        return b.spent_at - a.spent_at;
+      case "oldest":
+        return a.spent_at - b.spent_at;
+      case "highest":
+        return b.spent_cents - a.spent_cents;
+      case "lowest":
+        return a.spent_cents - b.spent_cents;
+    }
+  })
+);
+
+effect(() => console.log(sortedSpendingEntries.value));
+
 const totalSpent = computed(() =>
   spendingEntries
     .value
@@ -120,8 +156,6 @@ const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
   day: "numeric",
   month: "short",
 });
-
-effect(() => console.log(topCategories.value));
 </script>
 
 <template>
@@ -173,7 +207,7 @@ effect(() => console.log(topCategories.value));
           </p>
         </div>
         <div>
-          <p>Insgesamt ausgegeben</p>
+          <p class="is-size-7">Insgesamt ausgegeben</p>
         </div>
         <div>
           <p v-if="spendingEntries.length">
@@ -214,11 +248,50 @@ effect(() => console.log(topCategories.value));
     </div>
     <hr class="m-0">
     <div class="card-content pt-3">
-      <p class="title is-6 mb-2">Alle Ausgaben</p>
+      <p class="level mb-1">
+        <span class="level-left">
+          <span class="title is-6">Alle Ausgaben</span>
+        </span>
+        <span class="level-right">
+          <div
+            ref="sortDropdown"
+            class="dropdown is-right"
+            :class="{ 'is-active': isSortMenuActive }"
+          >
+  <span class="dropdown-trigger">
+    <button
+      type="button"
+      class="level is-gap-1"
+      :aria-expanded="isSortMenuActive"
+      @click="isSortMenuActive = !isSortMenuActive"
+    >
+      <span class="level-item is-size-7">
+        {{ sortOptionDisplayNames[selectedSortOption].de }}
+      </span>
+      <span class="icon is-small level-item">
+        <PhCaretDown />
+      </span>
+    </button>
+  </span>
+  <div class="dropdown-menu" role="menu">
+    <div class="dropdown-content">
+      <a
+        v-for="option in sortOptions"
+        :key="option"
+        class="dropdown-item"
+        @click="selectedSortOption = option; isSortMenuActive = false"
+      >
+        {{ sortOptionDisplayNames[option].de }}
+      </a>
+    </div>
+  </div>
+</div>
+        </span>
+      </p>
       <div class="table-container">
-        <table class="table is-fullwidth">
+        <table class="table is-fullwidth is-hoverable">
           <tbody>
-            <tr v-for="spending in spendingEntries">
+            <tr v-for="spending in sortedSpendingEntries" :key="spending.id">
               <td class="is-narrow is-vcentered">
                 <p class="
                   icon 
@@ -236,12 +309,14 @@ effect(() => console.log(topCategories.value));
                   <p class="spending-description has-text-weight-semibold">
                     {{ spending.description }}
                   </p>
-                  <p class="is-size-7 has-text-text">
-                    <span>{{ spentAtFormatter.format(dayjs(spending.spent_at).toDate()) }}</span>
+                  <p class="is-size-7 has-text-text level">
+                    <span class="level-left is-gap-1">
+                    <span>{{ spentAtFormatter.format(dayjs.unix(spending.spent_at).toDate()) }}</span>
                     <span>&middot;</span>
                     <span>User</span>
                     <span>&middot;</span>
                     <span>{{ categoryDisplayNames[spending.category].de }}</span>
+                    </span>
                   </p>
                 </div>
               </td>
