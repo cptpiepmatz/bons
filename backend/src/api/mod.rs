@@ -31,8 +31,13 @@ pub fn router(state: AppState) -> Router<AppState> {
         .route_layer(middleware::from_fn_with_state(state, auth::require_session));
 
     Router::new()
+        .route("/currency", get(currency))
         .route("/login", post(login))
         .merge(protected_routes)
+}
+
+async fn currency(State(state): State<AppState>) -> String {
+    state.currency.to_string()
 }
 
 async fn create_user(

@@ -4,11 +4,15 @@ use axum::Router;
 use clap::{Args, Parser, Subcommand};
 use tokio::sync::Mutex;
 
-use crate::db::Db;
+use crate::{
+    currency::{Currency, ParseCurrencyError},
+    db::Db,
+};
 
 mod api;
 mod auth;
 mod category;
+mod currency;
 mod db;
 mod money;
 
@@ -46,6 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 #[derive(Clone)]
 pub struct AppState {
     db: Arc<Mutex<Db>>,
+    currency: Currency,
 }
 
 #[derive(Args)]
@@ -58,9 +63,17 @@ struct ServeArgs {
 }
 
 async fn serve(args: ServeArgs) -> Result<(), Box<dyn std::error::Error>> {
+    let currency = std::env::var("BONS_CURRENCY")
+        .map_err(|_| ParseCurrencyError)?
+        .parse::<Currency>()?;
+    if let Currency::Unknown(code) = &currency {
+        eprintln!("Warning: BONS_CURRENCY contains an unknown currency code: {code:?}");
+    }
+
     let db = Db::connect().await?;
     let state = AppState {
         db: Arc::new(Mutex::new(db)),
+        currency,
     };
 
     let app = Router::new()
