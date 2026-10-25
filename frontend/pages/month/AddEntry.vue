@@ -105,7 +105,7 @@ function onDescriptionInput(event: Event) {
             >
           </p>
           <p class="control">
-            <a class="button is-static">{{ currencySymbol }}</a>
+            <a class="button is-static">{{ currencySymbol ?? "&ensp;" }}</a>
           </p>
         </div>
       </div>
