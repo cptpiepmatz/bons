@@ -9,11 +9,7 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 </script>
 
 <style lang="scss" scoped>
-@use "../../styles/mixins";
-
 .layout {
-  @include mixins.desktop-background;
-
   height: 100%;
   width: 100%;
   display: flex;

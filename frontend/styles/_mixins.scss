@@ -1,9 +1,0 @@
-@mixin desktop-background {
-  @media (min-width: 769px) {
-    background-color: var(--bulma-white-ter);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--bulma-black-ter);
-    }
-  }
-}

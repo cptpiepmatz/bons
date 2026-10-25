@@ -25,6 +25,14 @@ html,
 body,
 #app {
   height: 100%;
+
+  @media (min-width: 769px) {
+    background-color: var(--bulma-white-ter);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--bulma-black-ter);
+    }
+  }
 }
 
 // ensure that we get dark scrollbars on dark mode

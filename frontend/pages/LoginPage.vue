@@ -11,11 +11,7 @@ const isMobile = useMediaQuery("(max-width: 768px)");
 </script>
 
 <style lang="scss" scoped>
-@use "../styles/mixins";
-
 .layout {
-  @include mixins.desktop-background;
-
   display: flex;
   align-items: center;
   justify-content: center;
