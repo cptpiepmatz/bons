@@ -20,7 +20,11 @@ import {
   categoryRecord,
 } from "../../generated/categories";
 import { Money } from "../../models/money";
-import { sortOptionDisplayNames, sortOptions, type SortOptions } from "../../models/sortOptions";
+import {
+  sortOptionDisplayNames,
+  type SortOptions,
+  sortOptions,
+} from "../../models/sortOptions";
 
 const { currencyFormatter } = useCurrency();
 const router = useRouter();
@@ -31,7 +35,9 @@ const isSortMenuActive = ref(false);
 const sortDropdown = ref<HTMLDivElement>();
 
 function closeSortMenuOnOutsideClick(event: MouseEvent) {
-  if (event.target instanceof Node && !sortDropdown.value?.contains(event.target)) {
+  if (
+    event.target instanceof Node && !sortDropdown.value?.contains(event.target)
+  ) {
     isSortMenuActive.value = false;
   }
 }
@@ -258,34 +264,34 @@ const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
             class="dropdown is-right"
             :class="{ 'is-active': isSortMenuActive }"
           >
-  <span class="dropdown-trigger">
-    <button
-      type="button"
-      class="level is-gap-1"
-      :aria-expanded="isSortMenuActive"
-      @click="isSortMenuActive = !isSortMenuActive"
-    >
-      <span class="level-item is-size-7">
+            <span class="dropdown-trigger">
+              <button
+                type="button"
+                class="level is-gap-1"
+                :aria-expanded="isSortMenuActive"
+                @click="isSortMenuActive = !isSortMenuActive"
+              >
+                <span class="level-item is-size-7">
         {{ sortOptionDisplayNames[selectedSortOption].de }}
       </span>
-      <span class="icon is-small level-item">
-        <PhCaretDown />
-      </span>
-    </button>
-  </span>
-  <div class="dropdown-menu" role="menu">
-    <div class="dropdown-content">
-      <a
-        v-for="option in sortOptions"
-        :key="option"
-        class="dropdown-item"
-        @click="selectedSortOption = option; isSortMenuActive = false"
-      >
+                <span class="icon is-small level-item">
+                  <PhCaretDown />
+                </span>
+              </button>
+            </span>
+            <div class="dropdown-menu" role="menu">
+              <div class="dropdown-content">
+                <a
+                  v-for="option in sortOptions"
+                  :key="option"
+                  class="dropdown-item"
+                  @click="selectedSortOption = option; isSortMenuActive = false"
+                >
         {{ sortOptionDisplayNames[option].de }}
       </a>
-    </div>
-  </div>
-</div>
+              </div>
+            </div>
+          </div>
         </span>
       </p>
       <div class="table-container">
@@ -311,11 +317,11 @@ const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
                   </p>
                   <p class="is-size-7 has-text-text level">
                     <span class="level-left is-gap-1">
-                    <span>{{ spentAtFormatter.format(dayjs.unix(spending.spent_at).toDate()) }}</span>
-                    <span>&middot;</span>
-                    <span>User</span>
-                    <span>&middot;</span>
-                    <span>{{ categoryDisplayNames[spending.category].de }}</span>
+                      <span>{{ spentAtFormatter.format(dayjs.unix(spending.spent_at).toDate()) }}</span>
+                      <span>&middot;</span>
+                      <span>User</span>
+                      <span>&middot;</span>
+                      <span>{{ categoryDisplayNames[spending.category].de }}</span>
                     </span>
                   </p>
                 </div>
