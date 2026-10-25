@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 import type { Dayjs } from "dayjs";
 
+import { SpendingResponse } from "../../../bindings/SpendingResponse";
 import { useCurrency } from "../../composables/useCurrency";
 import { Money } from "../../models/money";
 
@@ -10,7 +11,15 @@ const { currencyFormatter } = useCurrency();
 
 const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 
-const totalSpent = ref(Money.fromCents(12345));
+const spendingEntries = ref<SpendingResponse[]>([]);
+const totalSpent = computed(() =>
+  Money.fromCents(
+    spendingEntries.value.reduce(
+      (acc, { spent_cents }) => acc + spent_cents,
+      0,
+    ),
+  )
+);
 </script>
 
 <template>
@@ -22,7 +31,7 @@ const totalSpent = ref(Money.fromCents(12345));
         <div>
           <p>Insgesamt ausgegeben</p>
         </div>
-        <div></div>
+        <div>{{ spendingEntries.length }} Ausgaben</div>
       </div>
     </div>
     <hr>
