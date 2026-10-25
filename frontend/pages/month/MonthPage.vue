@@ -15,8 +15,11 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
   display: flex;
   flex-direction: column;
 
-  > hr {
+  > :not(main) {
     flex-shrink: 0;
+  }
+
+  > hr {
     background-color: var(--bulma-border);
   }
 
@@ -28,10 +31,30 @@ const { monthDate } = defineProps<{ monthDate: Dayjs }>();
     justify-content: center;
 
     > .columns {
-      height: 100%;
       width: 100%;
       max-width: var(--content-width);
       margin: 0;
+    }
+  }
+
+  @media (min-width: 769px) {
+    main {
+      min-height: 0;
+
+      > .columns {
+        height: 100%;
+        min-height: 0;
+
+        > .column {
+          min-height: 0;
+
+          > :deep(.card) {
+            max-height: 100%;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+          }
+        }
+      }
     }
   }
 }

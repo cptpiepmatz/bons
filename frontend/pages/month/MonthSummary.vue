@@ -125,7 +125,7 @@ effect(() => console.log(topCategories.value));
 </script>
 
 <template>
-  <div class="card" style="height: 100%;">
+  <div class="card" style="min-height: 100%;">
     <div class="card-content pb-1">
       <div class="is-flex is-flex-direction-column is-align-items-center">
         <div class="field has-addons">
@@ -220,15 +220,21 @@ effect(() => console.log(topCategories.value));
           <tbody>
             <tr v-for="spending in spendingEntries">
               <td class="is-narrow">
-                <p
-                  class="icon is-medium spending-icon has-text-primary has-background-primary-bold">
+                <p class="
+                  icon 
+                  is-medium 
+                  spending-icon 
+                  has-text-primary 
+                  has-background-primary-light
+                ">
                   <CategoryIcon :category="spending.category" size="1.5em" />
                 </p>
               </td>
               <td>
                 <div>
-                  <p
-                    class="spending-description has-text-weight-semibold">{{ spending.description }}</p>
+                  <p class="spending-description has-text-weight-semibold">
+                    {{ spending.description }}
+                  </p>
                   <p class="spending-meta">
                     <span>{{ spentAtFormatter.format(dayjs(spending.spent_at).toDate()) }}</span>
                     <span>&middot;</span>
@@ -238,8 +244,12 @@ effect(() => console.log(topCategories.value));
                   </p>
                 </div>
               </td>
-              <td
-                class="is-narrow has-text-right has-text-weight-extrabold is-size-5">
+              <td class="
+                is-narrow 
+                has-text-right 
+                has-text-weight-extrabold 
+                is-size-5
+              ">
               {{ currencyFormatter && Money.fromCents(spending.spent_cents).format(currencyFormatter) }}
             </td>
               <td class="is-narrow">
