@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { PhCaretDown } from "@phosphor-icons/vue";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 import AppLogo from "./AppLogo.vue";
 import UserAvatar from "./UserAvatar.vue";
-import { useRouter } from "vue-router";
 
 const router = useRouter();
 
@@ -20,7 +20,11 @@ const userName = ref("Tim");
         is-justify-content-space-between
         m-1
       ">
-      <a class="left has-text-current" href="/" @click.prevent="router.push('/')">
+      <a
+        class="left has-text-current"
+        href="/"
+        @click.prevent="router.push('/')"
+      >
         <AppLogo class="mr-1" />
         <div class="is-flex is-flex-direction-row is-align-items-flex-end">
           <p class="title mb-0">bons</p>
