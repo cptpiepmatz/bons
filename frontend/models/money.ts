@@ -4,6 +4,8 @@ import type { CurrencyFormatter } from "./currencyFormatter.ts";
 export class Money {
   private constructor(private readonly cents: number) {}
 
+  static readonly ZERO = new Money(0);
+
   static fromCents(cents: number): Money {
     if (!Number.isSafeInteger(cents)) {
       throw new RangeError("Cents must be a safe integer");
@@ -23,5 +25,9 @@ export class Money {
   /** Formats the amount using the supplied currency formatter. */
   format(formatter: CurrencyFormatter): string {
     return formatter.format(this.cents / 100);
+  }
+
+  isZero(): boolean {
+    return this.cents == 0;
   }
 }

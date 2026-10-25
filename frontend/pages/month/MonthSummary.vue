@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { PhCaretLeft, PhCaretRight } from "@phosphor-icons/vue";
+import { PhAcorn, PhCaretLeft, PhCaretRight } from "@phosphor-icons/vue";
 import dayjs, { type Dayjs } from "dayjs";
-import { computed, ref } from "vue";
+import { computed, effect, ref } from "vue";
 import { useRouter } from "vue-router";
 
+import { Category } from "../../../bindings/Category";
 import { SpendingResponse } from "../../../bindings/SpendingResponse";
+import CategoryIcon from "../../components/CategoryIcon.vue";
 import { useCurrency } from "../../composables/useCurrency";
+import {
+  categories,
+  categoryDisplayNames,
+  categoryRecord,
+} from "../../generated/categories";
 import { Money } from "../../models/money";
 
 const { currencyFormatter } = useCurrency();
@@ -82,16 +89,34 @@ const spendingEntries = ref<SpendingResponse[]>([
   },
 ]);
 const totalSpent = computed(() =>
-  spendingEntries.value.reduce(
-    (acc, { spent_cents }) => acc.add(spent_cents),
-    Money.fromCents(0),
-  )
+  spendingEntries
+    .value
+    .map(({ spent_cents }) => Money.fromCents(spent_cents))
+    .reduce((sum, entry) => sum.add(entry), Money.ZERO)
 );
+
+const topCategories = computed(() => {
+  const spendingPerCategory = categoryRecord((category) =>
+    spendingEntries
+      .value
+      .filter((entry) => entry.category == category)
+      .map(({ spent_cents }) => Money.fromCents(spent_cents))
+      .reduce((sum, entry) => sum.add(entry), Money.ZERO)
+  );
+
+  return (Object
+    .entries(spendingPerCategory) as [Category, Money][])
+    .filter(([, entry]) => !entry.isZero())
+    .sort(([, a], [, b]) => b.toCents() - a.toCents())
+    .slice(0, 4);
+});
+
+effect(() => console.log(topCategories.value));
 </script>
 
 <template>
   <div class="card" style="height: 100%;">
-    <div class="card-content">
+    <div class="card-content pb-1">
       <div class="is-flex is-flex-direction-column is-align-items-center">
         <div class="field has-addons">
           <p class="control">
@@ -151,8 +176,31 @@ const totalSpent = computed(() =>
       </div>
     </div>
     <hr>
-    <div class="card-content">
-      def
+    <div class="card-content py-3">
+      <p class="title is-6 mb-2">Nach Kategorien</p>
+      <div class="fixed-grid">
+        <div class="grid">
+          <div
+            v-for="[category, spent] in topCategories"
+            class="category-summary py-2 px-4"
+          >
+            <div
+              class="is-flex is-flex-direction-row is-align-items-center is-gap-1">
+              <p class="icon is-large">
+                <CategoryIcon :category="category" size="2.8em" />
+              </p>
+              <div class="is-flex is-flex-direction-column">
+                <p class="subtitle is-7 mb-0">
+                  {{ categoryDisplayNames[category].de }}
+                </p>
+                <p class="title is-6 mb-0">
+                  {{ currencyFormatter && spent.format(currencyFormatter) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <hr>
     <div class="card-content">
@@ -162,6 +210,11 @@ const totalSpent = computed(() =>
 </template>
 
 <style scoped lang="scss">
+.category-summary {
+  border: var(--bulma-control-border-width) solid var(--bulma-border);
+  border-radius: var(--bulma-radius);
+}
+
 hr {
   margin: 0;
 }
