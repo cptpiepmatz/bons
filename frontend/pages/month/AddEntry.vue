@@ -6,6 +6,7 @@ import {
   PhPencilSimple,
   PhPlusSquare,
 } from "@phosphor-icons/vue";
+import dayjs from "dayjs";
 import { computed, effect, onMounted, onUnmounted, ref, watch } from "vue";
 
 import CategoryIcon from "../../components/CategoryIcon.vue";
@@ -16,16 +17,10 @@ import { suggestCategory } from "../../services/classifier.ts";
 
 import type { Category } from "../../../bindings/Category.ts";
 
-const dateLocaleOptions: Intl.DateTimeFormatOptions = {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-};
-
 const spent = ref<Money>();
 const description = ref<string>();
 const selectedCategory = ref<Category>("other");
-const spentAt = ref(new Date());
+const spentAt = ref(dayjs());
 
 const isSpentValid = ref(true);
 const isCategoryOpen = ref(false);
@@ -176,14 +171,14 @@ function onDescriptionInput(event: Event) {
               type="date"
               ref="spentAtInputDate"
               style="position: absolute; visibility: hidden;"
-              @change="spentAt = new Date(spentAtInputDate!.value)"
+              @change="spentAt = dayjs(spentAtInputDate!.value)"
               @blur="spentAtInputText?.blur"
             >
             <input
               class="input"
               type="text"
               ref="spentAtInputText"
-              :value="spentAt.toLocaleDateString('de-DE', dateLocaleOptions)"
+              :value="spentAt.format('L')"
               readonly
               @click="spentAtInputDate?.showPicker()"
             >
