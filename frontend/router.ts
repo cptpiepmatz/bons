@@ -1,13 +1,15 @@
 import dayjs, { type Dayjs } from "dayjs";
 import { createRouter, createWebHistory } from "vue-router";
 
+import { useAuth } from "./composables/useAuth.ts";
+import { isMonth } from "./models/month.ts";
 import LoginPage from "./pages/LoginPage.vue";
 import MonthPage from "./pages/month/MonthPage.vue";
 
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: "/login", component: LoginPage },
+    { path: "/login", name: "login", component: LoginPage },
     {
       path: "/:year?/:month?",
       name: "month",
@@ -17,7 +19,13 @@ export const router = createRouter({
   ],
 });
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
+  const { checkSession } = useAuth();
+  const isAuthenticated = await checkSession();
+
+  if (to.name === "login") return isAuthenticated ? "/" : true;
+  if (!isAuthenticated) return { name: "login" };
+
   if (to.name !== "month") return;
 
   const year = to.params.year;
@@ -30,8 +38,11 @@ router.beforeEach((to) => {
 
   if (typeof year !== "string" || typeof month !== "string") return "/";
 
-  const capitalizedMonth = month.charAt(0).toUpperCase() +
-    month.slice(1).toLowerCase();
+  const monthName = month.toLowerCase();
+  if (!isMonth(monthName)) return "/";
+
+  const capitalizedMonth = monthName.charAt(0).toUpperCase() +
+    monthName.slice(1);
   const date = dayjs(`${capitalizedMonth} ${year}`, "MMMM YYYY", "en")
     .locale(dayjs.locale());
 

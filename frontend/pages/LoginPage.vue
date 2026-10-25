@@ -1,13 +1,25 @@
 <script setup lang="ts">
 import { PhEye, PhEyeSlash } from "@phosphor-icons/vue";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 import AppLogo from "../components/AppLogo.vue";
+import { useAuth } from "../composables/useAuth.ts";
 import { useMediaQuery } from "../composables/useMediaQuery.ts";
 
 const hideKey = ref(true);
 const key = ref("");
 const isMobile = useMediaQuery("(max-width: 768px)");
+const router = useRouter();
+const { signIn, isLoggingIn, loginError } = useAuth();
+
+async function submit() {
+  if (!key.value.trim()) return;
+  if (await signIn(key.value)) {
+    key.value = "";
+    await router.replace("/");
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -43,7 +55,7 @@ const isMobile = useMediaQuery("(max-width: 768px)");
           </div>
         </div>
         <hr>
-        <div>
+        <form @submit.prevent="submit">
           <div class="block">
             <p
               class="title mb-1 is-size-4 has-text-weight-bold">
@@ -52,15 +64,20 @@ const isMobile = useMediaQuery("(max-width: 768px)");
             <p>Füg deinen Zugangsschlüssel ein, dann geht’s los.</p>
           </div>
           <div class="block">
-            <div
+            <label
+              for="access-key"
               class="is-size-7 has-text-weight-bold mb-1"
             >
               Zugangsschlüssel
-            </div>
+            </label>
             <div class="control has-icons-right">
               <input
+                id="access-key"
                 class="input" :type="hideKey ? 'password' : 'text'"
                 placeholder="Hier einfügen" v-model="key"
+                :disabled="isLoggingIn"
+                :aria-invalid="loginError ? true : undefined"
+                :aria-describedby="loginError ? 'login-error' : undefined"
                 @keydown.space.prevent
               />
               <span
@@ -72,18 +89,24 @@ const isMobile = useMediaQuery("(max-width: 768px)");
               </span>
             </div>
           </div>
+          <p v-if="loginError" id="login-error" class="help is-danger mb-3"
+            role="alert">
+            {{ loginError }}
+          </p>
           <div class="block">
             <button
+              type="submit"
               class="button is-primary is-fullwidth mb-2"
-              :disabled="!key"
+              :class="{ 'is-loading': isLoggingIn }"
+              :disabled="!key.trim() || isLoggingIn"
             >
-            Los geht's
-          </button>
+              Los geht's
+            </button>
             <p class="is-size-7">
               Noch keinen Schlüssel? Frag bei der Person nach, die bons eingerichtet hat.
             </p>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   </div>

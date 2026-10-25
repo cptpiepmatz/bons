@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { PhCaretDown } from "@phosphor-icons/vue";
-import { ref } from "vue";
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 
+import { useAuth } from "../composables/useAuth.ts";
 import AppLogo from "./AppLogo.vue";
 import UserAvatar from "./UserAvatar.vue";
 
 const router = useRouter();
 
-const userName = ref("Tim");
+const { user } = useAuth();
+const userName = computed(() => user.value?.name ?? "");
 </script>
 
 <template>
