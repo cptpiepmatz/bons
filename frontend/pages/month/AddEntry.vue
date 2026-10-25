@@ -7,7 +7,7 @@ import {
   PhPlusSquare,
 } from "@phosphor-icons/vue";
 import dayjs from "dayjs";
-import { computed, effect, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import UserAvatar from "../../components/UserAvatar.vue";
@@ -27,7 +27,7 @@ const selectedCategory = ref<Category>("other");
 const spentAt = ref(dayjs());
 
 const isSpentValid = ref(true);
-const isCategoryOpen = ref(false);
+const categoryMenu = ref<HTMLDivElement>();
 const spentAtInputDate = ref<HTMLInputElement>();
 const spentAtInputText = ref<HTMLInputElement>();
 
@@ -45,10 +45,6 @@ const spentPlaceholder = computed(() => {
     .map(({ value }) => value)
     .join("");
 });
-
-const onDocumentClick = () => isCategoryOpen.value = false;
-onMounted(() => document.addEventListener("click", onDocumentClick));
-onUnmounted(() => document.removeEventListener("click", onDocumentClick));
 
 function onSpentInput(event: Event) {
   const element = event.target as HTMLInputElement;
@@ -68,7 +64,7 @@ function onSpentInput(event: Event) {
 
 function selectCategory(category: Category) {
   selectedCategory.value = category;
-  isCategoryOpen.value = false;
+  categoryMenu.value?.hidePopover();
 }
 
 function onDescriptionInput(event: Event) {
@@ -131,20 +127,14 @@ function onDescriptionInput(event: Event) {
         <div class="field has-addons">
           <div class="control is-expanded">
             <input type="hidden" name="category" :value="selectedCategory">
-            <div
-              class="dropdown is-block"
-              :class="{ 'is-active': isCategoryOpen }"
-              @click.stop
-              @keydown.esc.stop.prevent="isCategoryOpen = false"
-            >
+            <div class="dropdown is-block">
               <div class="dropdown-trigger">
                 <button
                   id="category"
                   type="button"
                   class="button is-fullwidth"
-                  :aria-expanded="isCategoryOpen"
                   aria-controls="category-dropdown"
-                  @click="isCategoryOpen = !isCategoryOpen"
+                  popovertarget="category-dropdown"
                 >
                   <span class="icon is-small">
                     <CategoryIcon :category="selectedCategory" />
@@ -154,23 +144,26 @@ function onDescriptionInput(event: Event) {
                   <span class="icon is-small"><PhCaretDown /></span>
                 </button>
               </div>
-              <div id="category-dropdown" class="dropdown-menu">
-                <div class="dropdown-content is-overflow-y-auto">
-                  <button
-                    v-for="category in categories"
-                    :key="category"
-                    type="button"
-                    class="dropdown-item is-flex is-align-items-center"
-                    :class="{ 'is-active': selectedCategory === category }"
-                    :aria-pressed="selectedCategory === category"
-                    @click="selectCategory(category)"
-                  >
-                    <span class="icon is-small mr-2">
-                      <CategoryIcon :category="category" />
-                    </span>
-                    <span>{{ categoryDisplayNames[category].de }}</span>
-                  </button>
-                </div>
+              <div
+                id="category-dropdown"
+                ref="categoryMenu"
+                popover="auto"
+                class="dropdown-content category-menu is-position-fixed is-overflow-y-auto"
+              >
+                <button
+                  v-for="category in categories"
+                  :key="category"
+                  type="button"
+                  class="dropdown-item is-flex is-align-items-center"
+                  :class="{ 'is-active': selectedCategory === category }"
+                  :aria-pressed="selectedCategory === category"
+                  @click="selectCategory(category)"
+                >
+                  <span class="icon is-small mr-2">
+                    <CategoryIcon :category="category" />
+                  </span>
+                  <span>{{ categoryDisplayNames[category].de }}</span>
+                </button>
               </div>
             </div>
           </div>
@@ -216,12 +209,21 @@ function onDescriptionInput(event: Event) {
 </template>
 
 <style scoped>
-.dropdown-menu {
-  width: 100%;
+#category {
+  anchor-name: --category-select;
 }
 
-.dropdown-content {
-  max-height: min(18rem, 30dvh);
+.category-menu {
+  position-anchor: --category-select;
+  position-area: bottom center;
+  position-try-fallbacks: flip-block;
+  position-try-order: most-height;
+  width: anchor-size(width);
+  /* Percentages resolve against the available area above or below the button. */
+  max-height: 100%;
+  margin: 0;
+  border: 0;
+  padding-inline: 0;
   overscroll-behavior-y: contain;
 }
 </style>
