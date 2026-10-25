@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS spendings (
+CREATE TABLE IF NOT EXISTS spending (
   id INTEGER PRIMARY KEY,
   spent INTEGER NOT NULL, -- fixed point, cents
   description TEXT NOT NULL,

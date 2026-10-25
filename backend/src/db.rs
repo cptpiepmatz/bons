@@ -239,7 +239,7 @@ impl Db {
 
         let spending = sqlx::query!(
             r#"
-                INSERT INTO spendings (spent, description, category, user_id, spent_at, created_at)
+                INSERT INTO spending (spent, description, category, user_id, spent_at, created_at)
                 VALUES (?, ?, ?, ?, ?, ?)
                 RETURNING id as "id!"
             "#,
@@ -264,7 +264,7 @@ impl Db {
         })
     }
 
-    pub async fn spendings_for_month(
+    pub async fn spending_for_month(
         &mut self,
         year: i32,
         month: Month,
@@ -294,7 +294,7 @@ impl Db {
                     user_id,
                     spent_at,
                     created_at
-                FROM spendings
+                FROM spending
                 WHERE spent_at >= ? AND spent_at < ?
                 ORDER BY spent_at ASC, id ASC
             "#,
@@ -304,7 +304,7 @@ impl Db {
         .fetch_all(&mut self.conn)
         .await?;
 
-        let mut spendings = Vec::with_capacity(rows.len());
+        let mut spending = Vec::with_capacity(rows.len());
         for row in rows {
             let category = row
                 .category
@@ -315,7 +315,7 @@ impl Db {
             let created_at = DateTime::from_timestamp(row.created_at, 0)
                 .ok_or_else(|| sqlx::Error::Protocol("invalid created_at timestamp".into()))?;
 
-            spendings.push(Spending {
+            spending.push(Spending {
                 id: row.id,
                 spent: Money::from_cents(row.spent),
                 description: row.description,
@@ -326,6 +326,6 @@ impl Db {
             });
         }
 
-        Ok(spendings)
+        Ok(spending)
     }
 }

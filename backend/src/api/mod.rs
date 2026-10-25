@@ -25,9 +25,10 @@ use crate::{api::auth::session_cookie, AppState};
 
 pub fn router(state: AppState) -> Router<AppState> {
     let protected_routes = Router::new()
+        .route("/me", get(current_user))
         .route("/users", post(create_user))
-        .route("/spendings", post(create_spending))
-        .route("/spendings/{year}/{month}", get(spendings_for_month))
+        .route("/spending", post(create_spending))
+        .route("/spending/{year}/{month}", get(spending_for_month))
         .route_layer(middleware::from_fn_with_state(state, auth::require_session));
 
     Router::new()
@@ -38,6 +39,10 @@ pub fn router(state: AppState) -> Router<AppState> {
 
 async fn currency(State(state): State<AppState>) -> String {
     state.currency.to_string()
+}
+
+async fn current_user(Extension(user): Extension<User>) -> Json<UserResponse> {
+    Json(UserResponse::from_user(&user))
 }
 
 async fn create_user(
@@ -149,20 +154,20 @@ struct CreateSpendingRequest {
     spent_at: i64,
 }
 
-async fn spendings_for_month(
+async fn spending_for_month(
     State(state): State<AppState>,
     Path((year, month)): Path<(i32, String)>,
 ) -> Result<impl IntoResponse, StatusCode> {
     let month = Month::from_str(&month).map_err(|_| StatusCode::BAD_REQUEST)?;
 
     let mut db = state.db.lock().await;
-    let spendings = db
-        .spendings_for_month(year, month)
+    let spending = db
+        .spending_for_month(year, month)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok(Json(
-        spendings
+        spending
             .iter()
             .map(SpendingResponse::from_spending)
             .collect::<Vec<_>>(),
