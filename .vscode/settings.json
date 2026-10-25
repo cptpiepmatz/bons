@@ -4,6 +4,7 @@
     "bindings": "interface",
     "logo": "theme"
   },
+  "cSpell.language": "en,de",
   "cSpell.words": [
     "huggingface"
   ]
