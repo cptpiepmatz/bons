@@ -213,6 +213,14 @@ function onDescriptionInput(event: Event) {
   width: 100%;
 }
 
+.label {
+  margin-bottom: 0;
+}
+
+.block {
+  --bulma-block-spacing: 0.6em;
+}
+
 .category-label {
   flex: 1;
   text-align: left;
