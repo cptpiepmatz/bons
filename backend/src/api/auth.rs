@@ -7,7 +7,9 @@ use axum::{
 use cookie::{Cookie, SameSite};
 use std::env;
 
-use crate::{auth::SessionToken, AppState};
+use bons::auth::SessionToken;
+
+use crate::AppState;
 
 pub async fn require_session(
     State(state): State<AppState>,

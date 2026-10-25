@@ -4,6 +4,13 @@ version = "0.1.0"
 edition = "2021"
 build = "backend/build.rs"
 
+[lib]
+path = "backend/src/lib.rs"
+
+[[example]]
+name = "seed"
+path = "backend/examples/seed.rs"
+
 [[bin]]
 name = "bons"
 path = "backend/src/main.rs"

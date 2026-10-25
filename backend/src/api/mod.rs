@@ -14,14 +14,14 @@ use chrono::{DateTime, Duration, Month, Utc};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::{
-    api::auth::session_cookie,
+use bons::{
     auth::Key,
     category::Category,
     db::{Spending, User},
     money::Money,
-    AppState,
 };
+
+use crate::{api::auth::session_cookie, AppState};
 
 pub fn router(state: AppState) -> Router<AppState> {
     let protected_routes = Router::new()

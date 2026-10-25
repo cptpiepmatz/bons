@@ -1,6 +1,4 @@
-#![expect(dead_code)]
-
-use std::str::FromStr;
+use std::path::Path;
 
 use chrono::{DateTime, Duration, Month, TimeZone, Utc};
 use sqlx::{sqlite::SqliteConnectOptions, Connection, SqliteConnection};
@@ -59,7 +57,12 @@ pub struct Spending {
 
 impl Db {
     pub async fn connect() -> sqlx::Result<Self> {
-        let options = SqliteConnectOptions::from_str("sqlite://bons.sqlite")?
+        Self::connect_at("bons.sqlite").await
+    }
+
+    pub async fn connect_at(path: impl AsRef<Path>) -> sqlx::Result<Self> {
+        let options = SqliteConnectOptions::new()
+            .filename(path)
             .create_if_missing(true)
             .foreign_keys(true);
         let mut conn = SqliteConnection::connect_with(&options).await?;
@@ -74,8 +77,17 @@ impl Db {
         name: impl AsRef<str>,
         is_admin: bool,
     ) -> sqlx::Result<CreatedUser> {
+        self.create_user_with_key(name, is_admin, Key::random())
+            .await
+    }
+
+    pub async fn create_user_with_key(
+        &mut self,
+        name: impl AsRef<str>,
+        is_admin: bool,
+        key: Key,
+    ) -> sqlx::Result<CreatedUser> {
         let name = name.as_ref();
-        let key = Key::random();
         let key_hash = key.hash();
         let created_at = Utc::now();
 

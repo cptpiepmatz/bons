@@ -4,17 +4,12 @@ use axum::Router;
 use clap::{Args, Parser, Subcommand};
 use tokio::sync::Mutex;
 
-use crate::{
+use bons::{
     currency::{Currency, ParseCurrencyError},
     db::Db,
 };
 
 mod api;
-mod auth;
-mod category;
-mod currency;
-mod db;
-mod money;
 
 const DEFAULT_HOST: &str = "localhost";
 const DEFAULT_PORT: u16 = 2667; // bons on a phone dial
