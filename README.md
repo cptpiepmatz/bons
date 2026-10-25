@@ -39,24 +39,33 @@ required.
 
 ## Development data
 
-Stop the backend and remove the disposable `bons.sqlite` database, then run:
+Start development with:
 
 ```sh
-cargo run --example seed
 deno task dev
 ```
 
-The example creates a fresh `bons.sqlite` with an admin named `Development` and
-six entries each for the current and previous UTC calendar months. Log in with
-the following development-only access key (43 `A` characters):
+Before starting the backend, this runs `db:prepare` to prepare SQLx's
+compile-time database, then `db:seed` to run the seed example. An existing
+`bons.sqlite` is skipped with a console message and left unchanged: restarting
+development never deletes the database or adds duplicate seed entries.
+
+If no database exists, the example creates `bons.sqlite` with an admin named
+`Development` and six entries each for the current and previous UTC calendar
+months. Log in with the following development-only access key (43 `A`
+characters):
 
 ```text
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 ```
 
-This public key must never be used in production. The example refuses to
-overwrite existing files. To create a separate database, use
-`cargo run --example seed -- --database path/to/development.sqlite`.
+This public key must never be used in production. To seed without starting the
+servers, run `deno task db:seed`. To create a separate database, use
+`deno task db:seed --database path/to/development.sqlite`.
+
+These tasks require Deno, Cargo, and `sqlx-cli`. The SQLx database and query
+metadata are generated locally, not checked in. If running Cargo directly, run
+`deno task db:prepare` first.
 
 ### Authentication
 

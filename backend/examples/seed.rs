@@ -1,10 +1,10 @@
-use std::{fs::OpenOptions, path::PathBuf};
+use std::{fs::OpenOptions, io::ErrorKind, path::PathBuf};
 
 use bons::{auth::Key, category::Category, db::Db, money::Money};
 use chrono::{Datelike, Duration, Months, TimeZone, Utc};
 use clap::Parser;
 
-/// Create a fresh development database. Never use this key in production.
+/// Seed a missing development database. Never use this key in production.
 #[derive(Parser)]
 struct Args {
     #[arg(long, default_value = "bons.sqlite")]
@@ -17,10 +17,21 @@ const DEV_KEY: &str = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
     // Reserve the filename without overwriting an existing database.
-    OpenOptions::new()
+    match OpenOptions::new()
         .write(true)
         .create_new(true)
-        .open(&args.database)?;
+        .open(&args.database)
+    {
+        Ok(_) => {}
+        Err(error) if error.kind() == ErrorKind::AlreadyExists => {
+            println!(
+                "Database {} already exists; skipping development seed and leaving it unchanged.",
+                args.database.display()
+            );
+            return Ok(());
+        }
+        Err(error) => return Err(error.into()),
+    }
 
     let mut db = Db::connect_at(&args.database).await?;
     let user = db

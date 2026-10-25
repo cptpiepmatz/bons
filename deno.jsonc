@@ -10,9 +10,9 @@
       "dependencies": ["build:categories"]
     },
     "dev:backend": {
-      "description": "Prepare the database and run the backend",
+      "description": "Prepare and seed the development database, then run the backend",
       "command": "cargo run -- serve",
-      "dependencies": ["db:prepare"]
+      "dependencies": ["db:seed"]
     },
     "build": {
       "description": "Build the application",
@@ -51,6 +51,11 @@
       "description": "Prepare SQLx query metadata",
       "command": "cargo sqlx prepare -D sqlite://target/sqlx.sqlite",
       "dependencies": ["db:version", "db:setup"]
+    },
+    "db:seed": {
+      "description": "Seed the development database if it does not exist",
+      "command": "cargo run --example seed --",
+      "dependencies": ["db:prepare"]
     },
     "test": {
       "description": "Run frontend and backend tests",
