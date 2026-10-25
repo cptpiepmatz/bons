@@ -1,3 +1,5 @@
+import type { CurrencyFormatter } from "./currencyFormatter.ts";
+
 /** A monetary amount stored as integer cents. */
 export class Money {
   private constructor(private readonly cents: number) {}
@@ -13,11 +15,8 @@ export class Money {
     return this.cents;
   }
 
-  /** Returns a decimal amount with two digits, without a currency symbol. */
-  toString(): string {
-    const absoluteCents = Math.abs(this.cents);
-    const whole = Math.floor(absoluteCents / 100);
-    const fraction = String(absoluteCents % 100).padStart(2, "0");
-    return `${this.cents < 0 ? "-" : ""}${whole}.${fraction}`;
+  /** Formats the amount using the supplied currency formatter. */
+  format(formatter: CurrencyFormatter): string {
+    return formatter.format(Math.floor(this.cents / 100));
   }
 }

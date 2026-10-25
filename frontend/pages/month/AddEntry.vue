@@ -32,10 +32,10 @@ const entryIsValid = computed(() =>
   isSpentValid.value && !!spent.value && !!(description.value?.length)
 );
 
-const { currencySymbol, currencyFormat } = useCurrency();
+const { currencySymbol, currencyFormatter } = useCurrency();
 const spentPlaceholder = computed(() => {
-  if (!currencyFormat.value) return;
-  return currencyFormat
+  if (!currencyFormatter.value) return;
+  return currencyFormatter
     .value
     .formatToParts(0)
     .filter(({ type }) => type != "currency")

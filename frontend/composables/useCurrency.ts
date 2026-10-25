@@ -1,26 +1,25 @@
 import { computed, readonly, ref } from "vue";
 
+import { CurrencyFormatter } from "../models/currencyFormatter.ts";
+
 const currency = ref<string>();
 
-const currencyFormat = computed(() => {
+const currencyFormatter = computed(() => {
   if (!currency.value) return;
 
-  return new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: currency.value,
-  });
+  return new CurrencyFormatter("de-DE", currency.value);
 });
 
 const currencySymbol = computed(() => {
-  if (!currencyFormat.value) return;
+  if (!currencyFormatter.value) return;
 
-  return currencyFormat.value
+  return currencyFormatter.value
     .formatToParts(0)
     .find((part) => part.type == "currency")?.value ?? currency.value;
 });
 
 export function useCurrency() {
-  return { currency: readonly(currency), currencyFormat, currencySymbol };
+  return { currency: readonly(currency), currencyFormatter, currencySymbol };
 }
 
 export async function loadCurrency(): Promise<void> {
