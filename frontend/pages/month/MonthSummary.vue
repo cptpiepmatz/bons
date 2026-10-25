@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PhCaretLeft, PhCaretRight } from "@phosphor-icons/vue";
 import { computed, effect, ref } from "vue";
 
 import type { Dayjs } from "dayjs";
@@ -59,11 +60,9 @@ const spendingEntries = ref<SpendingResponse[]>([
   },
 ]);
 const totalSpent = computed(() =>
-  Money.fromCents(
-    spendingEntries.value.reduce(
-      (acc, { spent_cents }) => acc + spent_cents,
-      0,
-    ),
+  spendingEntries.value.reduce(
+    (acc, { spent_cents }) => acc.add(spent_cents),
+    Money.fromCents(0),
   )
 );
 </script>
@@ -71,13 +70,31 @@ const totalSpent = computed(() =>
 <template>
   <div class="card" style="height: 100%;">
     <div class="card-content">
-      <div>
-        <div>{{ monthDate.format("MMMM YYYY") }}</div>
-        <div>{{ currencyFormatter && totalSpent.format(currencyFormatter) }}</div>
+      <div class="is-flex is-flex-direction-column is-align-items-center">
+        <div class="is-flex is-flex-direction-row is-align-items-center mb-2">
+          <button class="button is-small">
+            <span class="icon is-large">
+              <PhCaretLeft />
+            </span>
+          </button>
+          <p class="has-text-weight-bold"
+            style="width: 10em; text-align: center;">{{ monthDate.format("MMMM YYYY") }}</p>
+          <button class="button is-small">
+            <span class="icon is-large">
+              <PhCaretRight />
+            </span>
+          </button>
+        </div>
+        <div>
+          <p
+            class="title">{{ currencyFormatter ? totalSpent.format(currencyFormatter) : "&ensp;" }}</p>
+        </div>
         <div>
           <p>Insgesamt ausgegeben</p>
         </div>
-        <div>{{ spendingEntries.length }} Ausgaben</div>
+        <div>
+          <p>{{ spendingEntries.length }} Ausgaben</p>
+        </div>
       </div>
     </div>
     <hr>

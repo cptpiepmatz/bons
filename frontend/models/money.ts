@@ -15,6 +15,11 @@ export class Money {
     return this.cents;
   }
 
+  add(other: number | Money): Money {
+    const otherMoney = other instanceof Money ? other : Money.fromCents(other);
+    return new Money(this.cents + otherMoney.cents);
+  }
+
   /** Formats the amount using the supplied currency formatter. */
   format(formatter: CurrencyFormatter): string {
     return formatter.format(this.cents / 100);
