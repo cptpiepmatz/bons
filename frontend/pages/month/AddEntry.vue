@@ -11,6 +11,7 @@ import { computed, effect, onMounted, onUnmounted, ref, watch } from "vue";
 
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import UserAvatar from "../../components/UserAvatar.vue";
+import { useCurrency } from "../../composables/useCurrency.ts";
 import { categories } from "../../generated/categories.ts";
 import { Money } from "../../models/money.ts";
 import { suggestCategory } from "../../services/classifier.ts";
@@ -30,6 +31,17 @@ const spentAtInputText = ref<HTMLInputElement>();
 const entryIsValid = computed(() =>
   isSpentValid.value && !!spent.value && !!(description.value?.length)
 );
+
+const { currencySymbol, currencyFormat } = useCurrency();
+const spentPlaceholder = computed(() => {
+  if (!currencyFormat.value) return;
+  return currencyFormat
+    .value
+    .formatToParts(0)
+    .filter(({ type }) => type != "currency")
+    .map(({ value }) => value)
+    .join("");
+});
 
 const onDocumentClick = () => isCategoryOpen.value = false;
 onMounted(() => document.addEventListener("click", onDocumentClick));
@@ -87,13 +99,13 @@ function onDescriptionInput(event: Event) {
               :class="{ 'is-danger': !isSpentValid }"
               type="text"
               inputmode="decimal"
-              placeholder="0,00"
+              :placeholder="spentPlaceholder"
               pattern="^\d+([,.]\d{0,2})?$"
               @input="onSpentInput"
             >
           </p>
           <p class="control">
-            <a class="button is-static">€</a>
+            <a class="button is-static">{{ currencySymbol }}</a>
           </p>
         </div>
       </div>
