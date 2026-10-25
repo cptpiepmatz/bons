@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { PhCaretLeft, PhCaretRight } from "@phosphor-icons/vue";
-import { computed, effect, ref } from "vue";
+import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 
 import type { Dayjs } from "dayjs";
 
@@ -9,8 +10,20 @@ import { useCurrency } from "../../composables/useCurrency";
 import { Money } from "../../models/money";
 
 const { currencyFormatter } = useCurrency();
+const router = useRouter();
 
 const { monthDate } = defineProps<{ monthDate: Dayjs }>();
+
+function navigateMonth(offset: number) {
+  const date = monthDate.add(offset, "month");
+  return router.push({
+    name: "month",
+    params: {
+      year: date.format("YYYY"),
+      month: date.locale("en").format("MMMM").toLowerCase(),
+    },
+  });
+}
 
 const spendingEntries = ref<SpendingResponse[]>([
   {
@@ -72,14 +85,14 @@ const totalSpent = computed(() =>
     <div class="card-content">
       <div class="is-flex is-flex-direction-column is-align-items-center">
         <div class="is-flex is-flex-direction-row is-align-items-center mb-2">
-          <button class="button is-small">
+          <button class="button is-small" @click="navigateMonth(-1)">
             <span class="icon is-large">
               <PhCaretLeft />
             </span>
           </button>
           <p class="has-text-weight-bold"
             style="width: 10em; text-align: center;">{{ monthDate.format("MMMM YYYY") }}</p>
-          <button class="button is-small">
+          <button class="button is-small" @click="navigateMonth(1)">
             <span class="icon is-large">
               <PhCaretRight />
             </span>
@@ -107,3 +120,9 @@ const totalSpent = computed(() =>
     </div>
   </div>
 </template>
+
+<style scoped lang="scss">
+hr {
+  margin: 0;
+}
+</style>
