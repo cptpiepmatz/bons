@@ -11,7 +11,7 @@ struct Args {
     database: PathBuf,
 }
 
-const DEV_KEY: &str = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+const DEV_KEY: &str = "bons2667-all-your-receipts-are-belong-to-us";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

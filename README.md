@@ -52,16 +52,17 @@ development never deletes the database or adds duplicate seed entries.
 
 If no database exists, the example creates `bons.sqlite` with an admin named
 `Development` and six entries each for the current and previous UTC calendar
-months. Log in with the following development-only access key (43 `A`
-characters):
+months. Log in with the following development-only access key:
 
 ```text
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+bons2667-all-your-receipts-are-belong-to-us
 ```
 
 This public key must never be used in production. To seed without starting the
 servers, run `deno task db:seed`. To create a separate database, use
 `deno task db:seed --database path/to/development.sqlite`.
+
+Existing databases keep their existing access keys; seeding never changes them.
 
 These tasks require Deno, Cargo, and `sqlx-cli`. The SQLx database and query
 metadata are generated locally, not checked in. If running Cargo directly, run
