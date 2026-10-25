@@ -7,18 +7,16 @@ is loaded.
 
 | Variable        | Required | Description                                                                                                |
 | --------------- | -------- | ---------------------------------------------------------------------------------------------------------- |
-| `BONS_CURRENCY` | Yes      | Currency code used by the server, such as `EUR` or `USD`. Server startup fails if it is missing or blank.  |
+| `BONS_CURRENCY` | No       | Overrides the server's built-in `EUR` currency default, for example with `USD`. Blank values are rejected. |
 | `BONS_DATABASE` | No       | Runtime SQLite database path. Defaults to `bons.sqlite`. Separate from SQLx's compile-time `DATABASE_URL`. |
 
-For local development, `.cargo/config.toml` supplies `BONS_CURRENCY=EUR` to
-Cargo commands unless it is already set in the environment. This is not a
-compiled-in default: running the binary directly requires the variable at
-runtime.
+The server defaults to `EUR`, including when running the binary directly.
+Set `BONS_CURRENCY` at runtime to use a different currency.
 
 Known currency codes are generated at build time from Deno's
 `Intl.supportedValuesOf("currency")`; building requires `deno` on `PATH`.
 Unknown currency values are accepted and preserved, but produce a warning on
-stderr at server startup. Missing or blank values remain errors.
+stderr at server startup. Blank values remain errors.
 
 ### Currency API
 

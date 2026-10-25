@@ -1,5 +1,4 @@
 [env]
-BONS_CURRENCY = "EUR"
 DATABASE_URL = "sqlite://target/sqlx.sqlite"
 INSECURE_COOKIES = "1"
 TS_RS_IMPORT_EXTENSION = "ts"

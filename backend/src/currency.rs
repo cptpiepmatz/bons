@@ -32,7 +32,7 @@ mod tests {
         let error: &dyn std::error::Error = &ParseCurrencyError;
         assert_eq!(
             error.to_string(),
-            "BONS_CURRENCY must be set to a currency code (for example, EUR)"
+            "currency code must not be blank (for example, EUR)"
         );
     }
 }

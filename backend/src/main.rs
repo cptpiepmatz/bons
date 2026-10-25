@@ -4,10 +4,7 @@ use axum::{routing::get, Router};
 use clap::{Args, Parser, Subcommand};
 use tokio::sync::Mutex;
 
-use bons::{
-    currency::{Currency, ParseCurrencyError},
-    db::Db,
-};
+use bons::{currency::Currency, db::Db};
 
 mod api;
 mod frontend;
@@ -69,9 +66,11 @@ struct ServeArgs {
 }
 
 async fn serve(args: ServeArgs) -> Result<(), Box<dyn std::error::Error>> {
-    let currency = std::env::var("BONS_CURRENCY")
-        .map_err(|_| ParseCurrencyError)?
-        .parse::<Currency>()?;
+    let currency = match std::env::var("BONS_CURRENCY") {
+        Ok(code) => code.parse::<Currency>()?,
+        Err(std::env::VarError::NotPresent) => Currency::EUR,
+        Err(error) => return Err(error.into()),
+    };
     if let Currency::Unknown(code) = &currency {
         eprintln!("Warning: BONS_CURRENCY contains an unknown currency code: {code:?}");
     }

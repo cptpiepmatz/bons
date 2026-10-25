@@ -56,7 +56,7 @@ fn known_currencies() {
         impl std::fmt::Display for ParseCurrencyError {
             fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 formatter.write_str(
-                    "BONS_CURRENCY must be set to a currency code (for example, EUR)"
+                    "currency code must not be blank (for example, EUR)"
                 )
             }
         }
