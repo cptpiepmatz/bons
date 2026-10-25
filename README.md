@@ -38,6 +38,10 @@ compiling a release. `deno task build` builds the frontend followed by the relea
 backend with embedded assets. `deno task dev` uses the debug backend and the Vite
 development server with its API proxy.
 
+The backend binds to `127.0.0.1:2667` by default, and the development proxy uses
+that same IPv4 address to avoid localhost IPv4/IPv6 fallback delays. Use
+`serve --host <address>` to bind the backend to a different interface.
+
 - `frontend/services/api.ts` owns HTTP requests and uses the generated types in
   `bindings/`. HTTP failures throw `ApiError` with a status code; network
   failures propagate unchanged.

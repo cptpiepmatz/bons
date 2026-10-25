@@ -12,7 +12,7 @@ use bons::{
 mod api;
 mod frontend;
 
-const DEFAULT_HOST: &str = "localhost";
+const DEFAULT_HOST: &str = "127.0.0.1";
 const DEFAULT_PORT: u16 = 2667; // bons on a phone dial
 
 #[derive(Parser)]
