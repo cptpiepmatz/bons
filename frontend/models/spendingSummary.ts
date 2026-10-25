@@ -17,6 +17,7 @@ export function summarizeSpending(
   }
   const categories = (Object.entries(totals) as [Category, Money][])
     .filter(([, amount]) => !amount.isZero())
-    .sort(([, a], [, b]) => b.toCents() - a.toCents());
+    .sort(([, a], [, b]) => b.toCents() - a.toCents())
+    .slice(0, 4);
   return { total, categories };
 }
