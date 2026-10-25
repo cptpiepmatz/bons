@@ -19,8 +19,8 @@
       "dependencies": ["build:backend"]
     },
     "build:backend": {
-      "description": "Build the Rust backend",
-      "command": "cargo build",
+      "description": "Build the release Rust backend with embedded frontend assets",
+      "command": "cargo build --release",
       "dependencies": ["build:frontend", "db:prepare"]
     },
     "build:bindings": {
@@ -94,10 +94,6 @@
     "fmt:sql": {
       "description": "Format SQL files",
       "command": "deno run -P=tools tools/fmt_sql.ts"
-    },
-    "preview": {
-      "description": "Preview the production frontend build",
-      "command": "deno run -A vite preview --host 127.0.0.1"
     },
     "dir:target": {
       "description": "Ensure the `target` dir is available",

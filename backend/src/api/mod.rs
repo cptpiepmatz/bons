@@ -35,6 +35,7 @@ pub fn router(state: AppState) -> Router<AppState> {
         .route("/currency", get(currency))
         .route("/login", post(login))
         .merge(protected_routes)
+        .fallback(|| async { StatusCode::NOT_FOUND })
 }
 
 async fn currency(State(state): State<AppState>) -> String {

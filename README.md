@@ -28,6 +28,16 @@ required.
 
 ## Frontend data access
 
+The backend serves the Vite output from `dist/` at `/`, with `index.html` as
+the fallback for client-side routes. API routes remain separate; missing API
+paths and missing assets return `404`.
+
+Debug builds read `dist/` from disk. Release builds embed it into the executable,
+so no separate frontend files are needed at runtime. Build the frontend before
+compiling a release. `deno task build` builds the frontend followed by the release
+backend with embedded assets. `deno task dev` uses the debug backend and the Vite
+development server with its API proxy.
+
 - `frontend/services/api.ts` owns HTTP requests and uses the generated types in
   `bindings/`. HTTP failures throw `ApiError` with a status code; network
   failures propagate unchanged.

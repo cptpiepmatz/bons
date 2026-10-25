@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::Router;
+use axum::{routing::get, Router};
 use clap::{Args, Parser, Subcommand};
 use tokio::sync::Mutex;
 
@@ -10,6 +10,7 @@ use bons::{
 };
 
 mod api;
+mod frontend;
 
 const DEFAULT_HOST: &str = "localhost";
 const DEFAULT_PORT: u16 = 2667; // bons on a phone dial
@@ -83,6 +84,7 @@ async fn serve(args: ServeArgs) -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .nest("/api", api::router(state.clone()))
+        .fallback_service(get(frontend::serve))
         .with_state(state);
 
     let address = format!("{}:{}", args.host, args.port);
