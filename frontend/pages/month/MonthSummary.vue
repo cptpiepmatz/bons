@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { PhCaretLeft, PhCaretRight } from "@phosphor-icons/vue";
+import dayjs, { type Dayjs } from "dayjs";
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
-
-import type { Dayjs } from "dayjs";
 
 import { SpendingResponse } from "../../../bindings/SpendingResponse";
 import { useCurrency } from "../../composables/useCurrency";
@@ -12,12 +11,11 @@ import { Money } from "../../models/money";
 const { currencyFormatter } = useCurrency();
 const router = useRouter();
 
-const monthDateInput = ref();
+const monthDateInput = ref<HTMLInputElement>();
 
 const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 
-function navigateMonth(offset: number) {
-  const date = monthDate.add(offset, "month");
+function navigateMonth(date: Dayjs) {
   return router.push({
     name: "month",
     params: {
@@ -25,6 +23,15 @@ function navigateMonth(offset: number) {
       month: date.locale("en").format("MMMM").toLowerCase(),
     },
   });
+}
+
+function selectMonth() {
+  const value = monthDateInput.value?.value;
+  if (!value) return router.push("/");
+
+  const date = dayjs(value, "YYYY-MM", true);
+  if (!date.isValid()) return;
+  return navigateMonth(date);
 }
 
 const spendingEntries = ref<SpendingResponse[]>([
@@ -88,29 +95,37 @@ const totalSpent = computed(() =>
       <div class="is-flex is-flex-direction-column is-align-items-center">
         <div class="field has-addons">
           <p class="control">
-            <button class="button">
+            <button
+              class="button is-small"
+              @click="navigateMonth(monthDate.subtract(1, 'month'))"
+            >
               <span class="icon is-large">
                 <PhCaretLeft />
               </span>
             </button>
           </p>
           <input
-            class="button"
+            class="button is-small"
             type="month"
             ref="monthDateInput"
+            :value="monthDate.format('YYYY-MM')"
+            @change="selectMonth"
             style="visibility: hidden; width: 10rem; position: absolute;"
           />
           <p class="control">
             <button
-              class="button"
+              class="button is-small"
               style="width: 10rem;"
-              @click="monthDateInput.showPicker()"
+              @click="monthDateInput?.showPicker()"
             >
               <span>{{ monthDate.format("MMMM YYYY") }}</span>
             </button>
           </p>
           <p class="control">
-            <button class="button">
+            <button
+              class="button is-small"
+              @click="navigateMonth(monthDate.add(1, 'month'))"
+            >
               <span class="icon is-large">
                 <PhCaretRight />
               </span>
@@ -126,7 +141,12 @@ const totalSpent = computed(() =>
           <p>Insgesamt ausgegeben</p>
         </div>
         <div>
-          <p>{{ spendingEntries.length }} Ausgaben</p>
+          <p v-if="spendingEntries.length">
+            {{ spendingEntries.length }} Ausgaben
+          </p>
+          <p v-else>
+            keine Ausgaben
+          </p>
         </div>
       </div>
     </div>
