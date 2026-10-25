@@ -1,4 +1,7 @@
-use std::path::Path;
+use std::{
+    path::{Path, PathBuf},
+    sync::LazyLock,
+};
 
 use chrono::{DateTime, Duration, Month, TimeZone, Utc};
 use sqlx::{sqlite::SqliteConnectOptions, Connection, SqliteConnection};
@@ -8,6 +11,12 @@ use crate::{
     category::Category,
     money::Money,
 };
+
+pub static DATABASE_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
+    std::env::var_os("BONS_DATABASE")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("bons.sqlite"))
+});
 
 pub struct Db {
     conn: SqliteConnection,
@@ -57,7 +66,7 @@ pub struct Spending {
 
 impl Db {
     pub async fn connect() -> sqlx::Result<Self> {
-        Self::connect_at("bons.sqlite").await
+        Self::connect_at(&*DATABASE_PATH).await
     }
 
     pub async fn connect_at(path: impl AsRef<Path>) -> sqlx::Result<Self> {

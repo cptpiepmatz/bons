@@ -10,8 +10,8 @@
       "dependencies": ["build:categories"]
     },
     "dev:backend": {
-      "description": "Prepare and seed the development database, then run the backend",
-      "command": "cargo run -- serve",
+      "description": "Recreate and seed the disposable development database, then run the backend",
+      "command": "BONS_DATABASE=target/dev.sqlite cargo run -- serve",
       "dependencies": ["db:seed"]
     },
     "build": {
@@ -53,9 +53,13 @@
       "dependencies": ["db:version", "db:setup"]
     },
     "db:seed": {
-      "description": "Seed the development database if it does not exist",
-      "command": "cargo run --example seed --",
-      "dependencies": ["db:prepare"]
+      "description": "Recreate and seed the disposable development database",
+      "command": "BONS_DATABASE=target/dev.sqlite cargo run --example seed",
+      "dependencies": ["db:prepare", "db:clean"]
+    },
+    "db:clean": {
+      "description": "Remove only the disposable development database and its SQLite sidecars",
+      "command": "rm -f target/dev.sqlite*"
     },
     "test": {
       "description": "Run frontend and backend tests",

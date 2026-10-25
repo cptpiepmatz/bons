@@ -1,8 +1,9 @@
 import { readonly, ref } from "vue";
 
+import { Api } from "../services/api.ts";
+
 import type { CreateSpendingRequest } from "../../bindings/CreateSpendingRequest.ts";
 import type { SpendingResponse } from "../../bindings/SpendingResponse.ts";
-import { Api } from "../services/api.ts";
 
 export function useCreateSpending() {
   const isSaving = ref(false);

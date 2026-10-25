@@ -9,15 +9,11 @@ import dayjs, { type Dayjs } from "dayjs";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
-import { Category } from "../../../bindings/Category";
 import { SpendingResponse } from "../../../bindings/SpendingResponse";
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import { useAuth } from "../../composables/useAuth.ts";
 import { useCurrency } from "../../composables/useCurrency";
-import {
-  categoryDisplayNames,
-  categoryRecord,
-} from "../../generated/categories";
+import { categoryDisplayNames } from "../../generated/categories";
 import { Money } from "../../models/money";
 import { getMonth } from "../../models/month.ts";
 import {
@@ -25,6 +21,7 @@ import {
   type SortOptions,
   sortOptions,
 } from "../../models/sortOptions";
+import { summarizeSpending } from "../../models/spendingSummary.ts";
 
 const { currencyFormatter } = useCurrency();
 const { user } = useAuth();
@@ -93,26 +90,7 @@ const sortedSpendingEntries = computed(() =>
   })
 );
 
-const totalSpent = computed(() =>
-  spendingEntries
-    .map(({ spent_cents }) => Money.fromCents(spent_cents))
-    .reduce((sum, entry) => sum.add(entry), Money.ZERO)
-);
-
-const topCategories = computed(() => {
-  const spendingPerCategory = categoryRecord((category) =>
-    spendingEntries
-      .filter((entry) => entry.category == category)
-      .map(({ spent_cents }) => Money.fromCents(spent_cents))
-      .reduce((sum, entry) => sum.add(entry), Money.ZERO)
-  );
-
-  return (Object
-    .entries(spendingPerCategory) as [Category, Money][])
-    .filter(([, entry]) => !entry.isZero())
-    .sort(([, a], [, b]) => b.toCents() - a.toCents())
-    .slice(0, 4);
-});
+const summary = computed(() => summarizeSpending(spendingEntries));
 
 const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
   day: "numeric",
@@ -165,7 +143,7 @@ const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
         </div>
         <div>
           <p class="title">
-            {{ !isLoading && !error && currencyFormatter ? totalSpent.format(currencyFormatter) : "&ensp;" }}
+            {{ !isLoading && !error && currencyFormatter ? summary.total.format(currencyFormatter) : "&ensp;" }}
           </p>
         </div>
         <div>
@@ -191,10 +169,16 @@ const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
     <hr class="m-0">
     <div class="card-content py-3">
       <p class="title is-6 mb-2">Nach Kategorien</p>
-      <div class="fixed-grid">
+      <p v-if="isLoading" class="is-size-7">Kategorien werden geladen …</p>
+      <p v-else-if="error"
+        class="is-size-7">Keine Kategorieübersicht verfügbar.</p>
+      <p v-else-if="!summary.categories.length"
+        class="is-size-7">Noch keine Ausgaben in diesem Monat.</p>
+      <div v-else class="fixed-grid">
         <div class="grid">
           <div
-            v-for="[category, spent] in topCategories"
+            v-for="[category, spent] in summary.categories"
+            :key="category"
             class="category-summary has-radius-normal py-2 px-4"
           >
             <div

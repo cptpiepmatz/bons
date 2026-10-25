@@ -1,9 +1,11 @@
-import type { Dayjs } from "dayjs";
 import { onScopeDispose, readonly, ref, shallowRef, watch } from "vue";
 
-import type { SpendingResponse } from "../../bindings/SpendingResponse.ts";
+import type { Dayjs } from "dayjs";
+
 import { getMonth } from "../models/month.ts";
 import { Api } from "../services/api.ts";
+
+import type { SpendingResponse } from "../../bindings/SpendingResponse.ts";
 
 export function useMonthSpending(monthDate: () => Dayjs) {
   const spendingEntries = shallowRef<SpendingResponse[]>([]);

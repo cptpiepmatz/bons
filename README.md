@@ -5,9 +5,10 @@
 Configure the container or process through environment variables; no `.env` file
 is loaded.
 
-| Variable        | Required | Description                                                                                               |
-| --------------- | -------- | --------------------------------------------------------------------------------------------------------- |
-| `BONS_CURRENCY` | Yes      | Currency code used by the server, such as `EUR` or `USD`. Server startup fails if it is missing or blank. |
+| Variable        | Required | Description                                                                                                |
+| --------------- | -------- | ---------------------------------------------------------------------------------------------------------- |
+| `BONS_CURRENCY` | Yes      | Currency code used by the server, such as `EUR` or `USD`. Server startup fails if it is missing or blank.  |
+| `BONS_DATABASE` | No       | Runtime SQLite database path. Defaults to `bons.sqlite`. Separate from SQLx's compile-time `DATABASE_URL`. |
 
 For local development, `.cargo/config.toml` supplies `BONS_CURRENCY=EUR` to
 Cargo commands unless it is already set in the environment. This is not a
@@ -46,23 +47,33 @@ deno task dev
 ```
 
 Before starting the backend, this runs `db:prepare` to prepare SQLx's
-compile-time database, then `db:seed` to run the seed example. An existing
-`bons.sqlite` is skipped with a console message and left unchanged: restarting
-development never deletes the database or adds duplicate seed entries.
+compile-time database, then `db:seed` to recreate the disposable runtime
+database at `target/dev.sqlite`. The seed and backend tasks both set
+`BONS_DATABASE=target/dev.sqlite`. Every development restart deletes this
+database and its SQLite sidecars via `db:clean`, then seeds fresh data. Stop the
+running development backend before resetting it. The default `bons.sqlite` is
+never touched by these tasks.
 
-If no database exists, the example creates `bons.sqlite` with an admin named
-`Development` and six entries each for the current and previous UTC calendar
-months. Log in with the following development-only access key:
+The example creates a new database with an admin named `Development` and 106
+entries across the current and five previous UTC calendar months. Each month has
+different purchases, amounts, and entry counts (between 7 and 34), with dates
+distributed throughout the actual calendar month. The seed example fails without
+modifying an existing database. Log in with the following development-only
+access key:
 
 ```text
 bons2667-all-your-receipts-are-belong-to-us
 ```
 
 This public key must never be used in production. To seed without starting the
-servers, run `deno task db:seed`. To create a separate database, use
-`deno task db:seed --database path/to/development.sqlite`.
+servers, run `deno task db:seed` (this also deletes the old development
+database). To seed a separate new database without resetting the development
+database, set `BONS_DATABASE` to its path and run `cargo run --example seed`
+after `deno task db:prepare`. The example uses `BONS_DATABASE`, falling back to
+`bons.sqlite` just like the backend.
 
-Existing databases keep their existing access keys; seeding never changes them.
+Resetting development data also removes any development users, entries, and
+sessions.
 
 These tasks require Deno, Cargo, and `sqlx-cli`. The SQLx database and query
 metadata are generated locally, not checked in. If running Cargo directly, run
