@@ -1,6 +1,7 @@
 import { computed, readonly, ref } from "vue";
 
 import { CurrencyFormatter } from "../models/currencyFormatter.ts";
+import { Api } from "../services/api.ts";
 
 const currency = ref<string>();
 
@@ -23,10 +24,5 @@ export function useCurrency() {
 }
 
 export async function loadCurrency(): Promise<void> {
-  const response = await fetch("/api/currency");
-  if (!response.ok) {
-    throw new Error(`Failed to load currency: ${response.status}`);
-  }
-
-  currency.value = await response.text();
+  currency.value = await Api.getCurrency();
 }
