@@ -17,6 +17,6 @@ export class Money {
 
   /** Formats the amount using the supplied currency formatter. */
   format(formatter: CurrencyFormatter): string {
-    return formatter.format(Math.floor(this.cents / 100));
+    return formatter.format(this.cents / 100);
   }
 }
