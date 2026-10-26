@@ -32,6 +32,10 @@ async function submit() {
   > * {
     max-width: 30rem;
   }
+
+  > .card {
+    width: 100%;
+  }
 }
 
 .eye {
