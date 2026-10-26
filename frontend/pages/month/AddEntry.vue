@@ -11,6 +11,7 @@ const { t } = useI18n();
 const emit = defineEmits<{ created: [spending: SpendingResponse] }>();
 const dialog = ref<HTMLDialogElement>();
 const form = ref<InstanceType<typeof AddEntryForm>>();
+const formKey = ref(0);
 const isSaving = computed(() => form.value?.isSaving ?? false);
 
 function open() {
@@ -20,6 +21,7 @@ function open() {
 function close() {
   if (isSaving.value) return;
   form.value?.closeDropdown();
+  if (dialog.value?.open) formKey.value++;
   dialog.value?.close();
 }
 
@@ -58,7 +60,7 @@ defineExpose({ open });
             :aria-label="t('common.close')" :disabled="isSaving"
             @click="close"><PhX size="1.4em" /></button>
         </header>
-        <AddEntryForm ref="form" @created="onCreated">
+        <AddEntryForm :key="formKey" ref="form" @created="onCreated">
           <template v-if="modal" #actions>
             <button type="button" class="button is-ghost is-fullwidth mt-2"
               :disabled="isSaving"
