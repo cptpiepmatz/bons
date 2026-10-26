@@ -1,191 +1,234 @@
-# Bons
+<p align="center">
+  <img height="200" alt="bons logo" src="./logo/logo.svg">
+</p>
+<h1 align="center">bons</h1>
+<p align="center">
+  <b>Your spending. All in view.</b>
+</p>
 
-## Docker
+<br>
 
-Build and run with a persistent SQLite volume:
+<div align="center">
+
+[![License](https://img.shields.io/github/license/cptpiepmatz/bons?style=for-the-badge)](./LICENSE)
+[![Rust](https://img.shields.io/badge/Rust-D34516?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![Deno](https://img.shields.io/badge/Deno-2+-000000?style=for-the-badge&logo=deno)](https://deno.com/)
+[![Vue](https://img.shields.io/badge/Vue-3-42B883?style=for-the-badge&logo=vuedotjs&logoColor=white)](https://vuejs.org/)
+
+</div>
+
+## About
+
+**bons** is a self-hosted receipt collection tool for keeping track of shared
+spending. Enter a purchase's amount, description, category, and date, then see
+your spending by month and category. It records purchases, not receipt images.
+
+It is meant for a small, trusted group: host it privately behind an HTTPS
+reverse proxy, create users yourself, and hand out their access keys in person.
+There is no public registration. Everyone shares the same ledger, and every
+signed-in user can view and delete all entries.
+
+The interface works on desktop and mobile, supports English and German, and
+follows your browser's light or dark color scheme. A Rust backend serves the Vue
+frontend and stores everything in SQLite.
+
+## Screenshots
+
+Desktop and mobile views with English demo data. The images follow your
+browser's light or dark color scheme.
+
+### Login
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./media/login-desktop-dark.png">
+    <img width="600" src="./media/login-desktop-light.png" alt="bons sign-in page on desktop">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./media/login-mobile-dark.png">
+    <img width="195" src="./media/login-mobile-light.png" alt="bons sign-in page on mobile">
+  </picture>
+</p>
+
+### Monthly spending
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./media/month-desktop-dark.png">
+    <img width="600" src="./media/month-desktop-light.png" alt="Monthly spending with entries and category totals on desktop">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./media/month-mobile-dark.png">
+    <img width="195" src="./media/month-mobile-light.png" alt="Monthly spending and category summary on mobile">
+  </picture>
+</p>
+
+## Installation
+
+### Docker
+
+Build the image directly from the repository URL, then start it with a
+persistent database volume and bind port `2667`:
 
 ```sh
-docker build -t bons .
-docker run -d --name bons -p 2667:2667 -v bons-data:/data bons
+docker build -t bons https://github.com/cptpiepmatz/bons.git
+docker run -d --name bons --restart unless-stopped -p 2667:2667 -v bons-data:/data bons
 ```
 
-Create your first admin and save the access key printed by this command:
+The app uses only port `2667`. Point your HTTPS reverse proxy at this port on
+the Docker host, for example `http://127.0.0.1:2667` if the proxy runs there.
+
+Create your first user:
 
 ```sh
 docker exec bons bons create user "Your name" --admin
 ```
 
+Save the access key printed in the terminal and use it to sign in. The database
+stores only its hash, so you cannot recover a lost key from it. To add someone
+else, run the command again with their name and omit `--admin` unless needed.
+
 The container listens on `0.0.0.0:2667` and stores its database at
-`/data/bons.sqlite`. Migrations run automatically on startup. Use
-`-e BONS_CURRENCY=USD` to override the currency. Bind mounts must be writable by
-UID and GID `65532`; named volumes are initialized with the correct ownership.
+`/data/bons.sqlite`. Migrations run automatically. The image includes the
+frontend and migrations, runs as a non-root user, and needs no separate runtime
+files. Bind mounts must be writable by UID and GID `65532`; the named volume
+above is initialized with the correct ownership.
 
-Put the app behind an HTTPS reverse proxy for production. Session cookies are
-Secure by default; for local HTTP only, add `-e BONS_INSECURE_COOKIES=1` to
-`docker run`.
+### Running the binary
 
-The multi-stage build runs `deno task build` with Rust, musl, Deno, and
-`sqlx-cli`. Docker caches the build-tool installation, but source changes
-rebuild the app without additional cache mounts. The final `scratch` image
-contains only the statically linked, stripped executable (including frontend
-assets and migrations) and a writable `/data` directory. It runs as a non-root
-user, with no shell or build tools.
-
-## Server configuration
-
-Configure the container or process through environment variables; no `.env` file
-is loaded. All app-specific environment variables use the `BONS_` prefix.
-
-| Variable                | Required | Description                                                                                                     |
-| ----------------------- | -------- | --------------------------------------------------------------------------------------------------------------- |
-| `BONS_CURRENCY`         | No       | Overrides the server's built-in `EUR` currency default, for example with `USD`. Blank values are rejected.      |
-| `BONS_DATABASE`         | No       | Runtime SQLite database path. Defaults to `bons.sqlite`. Separate from SQLx's compile-time `DATABASE_URL`.      |
-| `BONS_INSECURE_COOKIES` | No       | Disables Secure session cookies when set (regardless of value). For local HTTP only; leave unset in production. |
-
-The server defaults to `EUR`, including when running the binary directly. Set
-`BONS_CURRENCY` at runtime to use a different currency.
-
-Known currency codes are generated at build time from Deno's
-`Intl.supportedValuesOf("currency")`; building requires `deno` on `PATH`.
-Unknown currency values are accepted and preserved, but produce a warning on
-stderr at server startup. Blank values remain errors.
-
-### Currency API
-
-`GET /api/currency` returns the configured currency as plain text
-(`text/plain; charset=utf-8`), for example `EUR`. Authentication is not
-required.
-
-## Frontend data access
-
-The backend serves the Vite output from `dist/` at `/`, with `index.html` as the
-fallback for client-side routes. API routes remain separate; missing API paths
-and missing assets return `404`.
-
-Debug builds read `dist/` from disk. Release builds embed it into the
-executable, so no separate frontend files are needed at runtime. Build the
-frontend before compiling a release. `deno task build` builds the frontend
-followed by the release backend with embedded assets. `deno task dev` uses the
-debug backend and the Vite development server with its API proxy.
-
-The backend binds to `127.0.0.1:2667` by default, and the development proxy uses
-that same IPv4 address to avoid localhost IPv4/IPv6 fallback delays. Use
-`serve --host <address>` to bind the backend to a different interface.
-
-- `frontend/services/api.ts` owns HTTP requests and uses the generated types in
-  `bindings/`. HTTP failures throw `ApiError` with a status code; network
-  failures propagate unchanged.
-- Composables in `frontend/composables/` own reactive state and expose it to Vue
-  components. For example, `useCurrency.ts` loads currency through the API
-  service and exposes the formatter used by templates.
-- Components own presentation and UI interactions, not HTTP details. Login uses
-  `useAuth.ts`; month pages load spending through `useMonthSpending.ts` and save
-  entries through `useCreateSpending.ts`.
-
-## Browser icons
-
-The app logo and browser icons share `logo/logo.svg` as their source. Run:
+If you prefer not to use Docker, [build the app yourself](#building) and run the
+resulting binary:
 
 ```sh
-deno task build:favicon
+./target/release/bons create user "Your name" --admin
+./target/release/bons serve
 ```
 
-The Deno script uses a WebAssembly SVG renderer and writes an SVG favicon, an
-ICO with 16, 32, and 48 pixel images, a 180 pixel Apple touch icon, and 192/512
-pixel PWA icons to `frontend/generated/icons/`. The HTML references them as
-regular Vite assets with `?no-inline`, so production builds emit separate files
-with content hashes in `dist/assets/`. Changing the logo changes their URLs for
-cache invalidation. Generated icons are ignored by Git.
+On Windows, use `target\release\bons.exe` instead. Run these commands with the
+same database configuration and working directory.
 
-Frontend development and builds run this task automatically. After editing the
-logo during development, rerun the task and refresh the browser to update icons.
+By default, bons listens on `127.0.0.1:2667` and creates `bons.sqlite` in the
+current working directory. The port spells **bons** on a T9 phone dial. Use
+`serve --host <address> --port <port>` to change the listening address or port.
+Put the binary behind an HTTPS reverse proxy too.
 
-## Install on a phone
+### Configuration
 
-Serve bons over HTTPS to install it on a phone. On iPhone, open the site in
-Safari and choose **Share → Add to Home Screen** (enable **Open as Web App** if
-shown). On Android, open it in Chrome and use **Install app** or **Add to Home
-screen** in the browser menu.
+Configuration comes from environment variables. No `.env` file is loaded.
 
-The installed app opens at `/` in its own window, with the normal login flow. It
-still needs an internet connection; no service worker or offline cache is added.
-Browser installation UI and availability vary by device.
+| Variable                | Default       | Behavior                                                                                                                                                                               |
+| ----------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BONS_DATABASE`         | `bons.sqlite` | Runtime SQLite path, relative to the working directory unless absolute. The Docker image sets this to `/data/bons.sqlite`.                                                             |
+| `BONS_CURRENCY`         | `EUR`         | Currency used to display all amounts, for example `USD`. Blank values are rejected. Unknown codes are preserved but produce a startup warning. This does not convert existing amounts. |
+| `BONS_INSECURE_COOKIES` | Unset         | Disables Secure session cookies whenever set, even to `0`. Only use this for local HTTP; leave it unset in production.                                                                 |
 
-`frontend/manifest.webmanifest` defines the app's installation settings. The
-`@budarin/vite-plugin-webmanifest` plugin emits the manifest with a content hash
-at the build output root, updates its HTML link, and hashes its generated icons
-in `dist/assets/`. The manifest's stable `id` identifies the installed app even
-when the manifest URL changes. Local development on `localhost` or `127.0.0.1`
-is also allowed; plain HTTP on a phone's LAN address does not meet installation
-requirements.
+For Docker, pass variables with `-e`, for example `-e BONS_CURRENCY=USD`, before
+the image name in `docker run`. Keep your SQLite database on persistent storage
+and make regular backups. Stop the server before copying the database, or use a
+SQLite-aware backup tool, and back it up before upgrading.
 
-## Development data
+### Install on a phone
 
-Start development with:
+bons includes a web app manifest so you can add it to your home screen. On
+iPhone, open the HTTPS site in Safari and choose **Share → Add to Home Screen**.
+On Android, use **Install app** or **Add to Home screen** in Chrome's menu.
+Browser support and wording vary.
+
+The installed app still needs a connection to your server. There is no offline
+mode or service worker.
+
+## Building
+
+Install these tools and make sure they are available on `PATH`:
+
+- [Deno 2](https://deno.com/).
+- [Rust and Cargo](https://rustup.rs/) using a current stable toolchain.
+- [SQLx CLI](https://github.com/launchbadge/sqlx/tree/main/sqlx-cli) with SQLite
+  support:
+
+  ```sh
+  cargo install sqlx-cli --version 0.9.0 --locked --no-default-features --features sqlite
+  ```
+
+Then, from the repository root:
+
+```sh
+deno task build
+```
+
+The task prepares the build database, generates frontend assets, and compiles
+the release backend. The result is `target/release/bons` (`bons.exe` on
+Windows), with frontend assets and migrations embedded.
+
+The compile-time database at `target/sqlx.sqlite` is separate from your runtime
+database. If you run Cargo directly, run `deno task db:prepare` first. For a
+complete release build, use `deno task build` so the embedded frontend is up to
+date.
+
+## Development
+
+All build and development steps are defined as [Deno tasks](./deno.jsonc). With
+the build tools installed, run:
 
 ```sh
 deno task dev
 ```
 
-Before starting the backend, this runs `db:prepare` to prepare SQLx's
-compile-time database, then `db:seed` to recreate the disposable runtime
-database at `target/dev.sqlite`. The seed and backend tasks both set
-`BONS_DATABASE=target/dev.sqlite`. Every development restart deletes this
-database and its SQLite sidecars via `db:clean`, then seeds fresh data. Stop the
-running development backend before resetting it. The default `bons.sqlite` is
-never touched by these tasks.
+This generates the frontend's dependencies, prepares and seeds a development
+database, and starts Vite at `http://127.0.0.1:5173`. Vite proxies `/api`
+requests to the backend at `http://127.0.0.1:2667`.
 
-The example creates a new database with an admin named `Development` and 106
-entries across the current and five previous UTC calendar months. Each month has
-different purchases, amounts, and entry counts (between 7 and 34), with dates
-distributed throughout the actual calendar month. Purchases and monthly entry
-counts and development user settings (including the public access key) are
-defined in `backend/examples/seed.toml` and embedded at compile time using
-`static-toml`. Purchase descriptions use the first English or German language in
-the OS preferences (via `sys-locale`), falling back to English. Set
-`BONS_SEED_LOCALE=en` or `BONS_SEED_LOCALE=de` to override OS detection;
-regional variants such as `de-DE` also work. Unsupported or empty overrides fail
-before the seed example creates a database. OS preferences may differ from the
-browser language used by the frontend. The selected seed language is printed
-when the example starts; changing the browser language does not translate
-existing entries. The seed example fails without modifying an existing database.
-Log in with the following development-only access key:
+Sign in with this development-only access key:
 
 ```text
 bons2667-all-your-receipts-are-belong-to-us
 ```
 
-This public key must never be used in production. To seed without starting the
-servers, run `deno task db:seed` (this also deletes the old development
-database). To seed a separate new database without resetting the development
-database, set `BONS_DATABASE` to its path and run `cargo run --example seed`
-after `deno task db:prepare`. The example uses `BONS_DATABASE`, falling back to
-`bons.sqlite` just like the backend.
+**Never use this public key in production.** Each invocation recreates the
+disposable database at `target/dev.sqlite`, removing all previous development
+users, entries, and sessions. It does not touch the default `bons.sqlite`. Stop
+the development backend before resetting the database.
 
-Resetting development data also removes any development users, entries, and
-sessions.
+Seed data includes purchases across the current and five previous UTC months.
+Descriptions follow the first supported English or German OS language, falling
+back to English. To use English demo data, set `BONS_SEED_LOCALE=en` before
+running `deno task dev`. The interface independently follows your browser's
+language preferences.
 
-These tasks require Deno, Cargo, and `sqlx-cli`. The SQLx database and query
-metadata are generated locally, not checked in. If running Cargo directly, run
-`deno task db:prepare` first.
+Format the project with:
 
-### Authentication
+```sh
+deno task fmt
+```
 
-`POST /api/login` accepts `{ "key": "..." }` and sets a 30-day HttpOnly session
-cookie. The browser manages that cookie; do not store access keys or session
-tokens in local storage. API requests use same-origin URLs, proxied to the
-backend by Vite in development.
+Run the existing tests with `deno task test`. Browser icons are generated from
+`logo/logo.svg`; after changing the logo during development, rerun
+`deno task build:favicon` and refresh the browser.
 
-`GET /api/currency` and `POST /api/login` are public. Reading monthly spending
-and creating spending entries require a valid session (`401` otherwise).
-Creating users also requires an admin (`403` otherwise).
+## Security
 
-`GET /api/me` returns the current user and requires a valid session. The
-frontend checks it before each navigation: unauthenticated visitors go to
-`/login`, and authenticated visitors to `/login` go to `/`. Authenticated
-visitors can stay on their selected month page, including after a reload. There
-is no logout endpoint yet.
+bons uses a custom authentication implementation. It may have mistakes, and it
+is not intended as a public service for untrusted users. Keep it private, share
+keys carefully, and use it only with people you trust with the entire ledger.
 
-Session cookies are Secure by default. For local HTTP development,
-`.cargo/config.toml` sets `BONS_INSECURE_COOKIES=1` for Cargo commands; do not
-set it in production.
+- **HTTPS is required for deployment.** Authentication uses Secure, HttpOnly,
+  SameSite=Lax session cookies. Signing in over ordinary HTTP will not work
+  reliably outside localhost. Terminate HTTPS at your reverse proxy and leave
+  `BONS_INSECURE_COOKIES` unset.
+- **Access keys are credentials.** Keep them somewhere safe. Only hashes are
+  stored in the database, and there is no key recovery flow.
+- **Sessions expire after 30 days of inactivity.** Signing out revokes the
+  current session, but there is no CLI or web interface for rotating access
+  keys, disabling users, or revoking all of a user's sessions.
+- **Manual account management needs care.** If a key is compromised, stop the
+  server, back up the database, and update it with a SQLite tool. Setting the
+  user's `enabled` field to `0` blocks both their key and existing sessions;
+  deleting their rows from `sessions` alone does not invalidate the access key.
+
+For local HTTP development, `.cargo/config.toml` sets `BONS_INSECURE_COOKIES=1`
+for Cargo commands. This is not baked into the release binary; keep the variable
+unset when running it in production.
+
+## License
+
+**bons** is released under the [MIT License](./LICENSE).
