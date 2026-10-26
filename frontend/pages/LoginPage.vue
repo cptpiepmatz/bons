@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { PhEye, PhEyeSlash } from "@phosphor-icons/vue";
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
 import AppLogo from "../components/AppLogo.vue";
@@ -8,6 +9,7 @@ import { useAuth } from "../composables/useAuth.ts";
 import { useMediaQuery } from "../composables/useMediaQuery.ts";
 
 const hideKey = ref(true);
+const { t } = useI18n();
 const key = ref("");
 const isMobile = useMediaQuery("(max-width: 768px)");
 const router = useRouter();
@@ -51,7 +53,7 @@ async function submit() {
               <AppLogo width="100em" class="mr-1" />
               <p class="title" :style="{fontSize: '4em'}">bons</p>
             </div>
-            <p>Eure Ausgaben. Alles im Blick.</p>
+            <p>{{ t("common.tagline") }}</p>
           </div>
         </div>
         <hr>
@@ -59,22 +61,22 @@ async function submit() {
           <div class="block">
             <p
               class="title mb-1 is-size-4 has-text-weight-bold">
-              Willkommen bei bons
+              {{ t("auth.welcome") }}
             </p>
-            <p>Füg deinen Zugangsschlüssel ein, dann geht’s los.</p>
+            <p>{{ t("auth.instructions") }}</p>
           </div>
           <div class="block">
             <label
               for="access-key"
               class="is-size-7 has-text-weight-bold mb-1"
             >
-              Zugangsschlüssel
+              {{ t("auth.accessKey") }}
             </label>
             <div class="control has-icons-right">
               <input
                 id="access-key"
                 class="input" :type="hideKey ? 'password' : 'text'"
-                placeholder="Hier einfügen" v-model="key"
+                :placeholder="t('auth.placeholder')" v-model="key"
                 :disabled="isLoggingIn"
                 :aria-invalid="loginError ? true : undefined"
                 :aria-describedby="loginError ? 'login-error' : undefined"
@@ -100,10 +102,10 @@ async function submit() {
               :class="{ 'is-loading': isLoggingIn }"
               :disabled="!key.trim() || isLoggingIn"
             >
-              Los geht's
+              {{ t("auth.start") }}
             </button>
             <p class="is-size-7">
-              Noch keinen Schlüssel? Frag bei der Person nach, die bons eingerichtet hat.
+              {{ t("auth.noKey") }}
             </p>
           </div>
         </form>

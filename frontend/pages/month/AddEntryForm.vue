@@ -6,12 +6,14 @@ import {
 } from "@phosphor-icons/vue";
 import dayjs from "dayjs";
 import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 import type { Category } from "../../../bindings/Category.ts";
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import { useCreateSpending } from "../../composables/useCreateSpending.ts";
 import { useCurrency } from "../../composables/useCurrency.ts";
 import { useDropdown } from "../../composables/useDropdown.ts";
+import { useLocale } from "../../composables/useLocale.ts";
 import { useMediaQuery } from "../../composables/useMediaQuery.ts";
 import {
   categories,
@@ -21,6 +23,8 @@ import { Money } from "../../models/money.ts";
 import { suggestCategory } from "../../services/classifier.ts";
 
 const emit = defineEmits<{ created: [] }>();
+const { t } = useI18n();
+const { locale, dateFormatter } = useLocale();
 const { create, isSaving, error } = useCreateSpending();
 
 // entry values
@@ -131,7 +135,7 @@ function onDescriptionInput(event: Event) {
   <form @submit.prevent="submit">
     <fieldset :disabled="isSaving">
       <div class="block mb-2">
-        <label class="label mb-0" for="spent">Betrag</label>
+        <label class="label mb-0" for="spent">{{ t("common.amount") }}</label>
         <div class="field has-addons">
           <p class="control is-expanded">
             <input
@@ -152,7 +156,8 @@ function onDescriptionInput(event: Event) {
         </div>
       </div>
       <div class="block mb-2">
-        <label class="label mb-0" for="description">Beschreibung</label>
+        <label class="label mb-0"
+          for="description">{{ t("common.description") }}</label>
         <div class="field has-addons">
           <p class="control is-expanded">
             <input
@@ -160,21 +165,22 @@ function onDescriptionInput(event: Event) {
               :value="description ?? ''"
               class="input"
               type="text"
-              placeholder="z.B. Wochenmarkt"
+              :placeholder="t('spending.descriptionPlaceholder')"
               @input="onDescriptionInput"
             >
           </p>
         </div>
       </div>
       <div class="block mb-2">
-        <label class="label mb-0" for="category">Kategorie</label>
+        <label class="label mb-0"
+          for="category">{{ t("common.category") }}</label>
         <div class="field has-addons">
           <div class="control is-expanded">
             <div v-if="useNativeCategoryPicker" class="select is-fullwidth">
               <select id="category" v-model="selectedCategory" name="category">
                 <option v-for="category in categories" :key="category"
                   :value="category">
-                  {{ categoryDisplayNames[category].de }}
+                  {{ categoryDisplayNames[category][locale] }}
                 </option>
               </select>
             </div>
@@ -199,7 +205,7 @@ function onDescriptionInput(event: Event) {
                     <CategoryIcon :category="selectedCategory" />
                   </span>
                   <span class="is-flex-grow-1 has-text-left">
-                      {{ categoryDisplayNames[selectedCategory].de }}
+                      {{ categoryDisplayNames[selectedCategory][locale] }}
                     </span>
                   <span class="icon is-small"><PhCaretDown /></span>
                 </button>
@@ -221,7 +227,7 @@ function onDescriptionInput(event: Event) {
                   <span class="icon is-small mr-2">
                     <CategoryIcon :category="category" />
                   </span>
-                  <span>{{ categoryDisplayNames[category].de }}</span>
+                  <span>{{ categoryDisplayNames[category][locale] }}</span>
                 </button>
               </div>
             </div>
@@ -229,7 +235,7 @@ function onDescriptionInput(event: Event) {
         </div>
       </div>
       <div class="block mb-2">
-        <label class="label mb-0" for="spent_at">Datum</label>
+        <label class="label mb-0" for="spent_at">{{ t("common.date") }}</label>
         <div class="field has-addons">
           <p class="control is-expanded has-icons-right">
             <input
@@ -245,7 +251,7 @@ function onDescriptionInput(event: Event) {
               class="input"
               type="text"
               ref="spentAtInputText"
-              :value="spentAt.format('L')"
+              :value="dateFormatter.format(spentAt.toDate())"
               readonly
               @click="spentAtInputDate?.showPicker()"
             >
@@ -259,15 +265,15 @@ function onDescriptionInput(event: Event) {
         <span class="icon">
           <PhPencilSimple weight="fill" />
         </span>
-        <span>Eingetragen von dir</span>
+        <span>{{ t("spending.enteredByYou") }}</span>
       </p>
       <p v-if="error" class="help is-danger mb-2" role="alert">
-        Die Ausgabe konnte nicht gespeichert werden. {{ error }}
+        {{ t("spending.saveError") }} {{ error }}
       </p>
       <button type="submit" class="button is-primary is-fullwidth"
         :class="{ 'is-loading': isSaving }"
         :disabled="!validEntry">
-        Ausgabe hinzufügen
+        {{ t("spending.add") }}
       </button>
       <slot name="actions" />
     </fieldset>

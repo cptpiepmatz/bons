@@ -2,6 +2,7 @@ import { readonly, ref } from "vue";
 
 import type { UserResponse } from "../../bindings/UserResponse.ts";
 import { Api, ApiError } from "../services/api.ts";
+import { i18n } from "../services/i18n.ts";
 
 const user = ref<UserResponse>();
 const isLoggingIn = ref(false);
@@ -17,8 +18,7 @@ async function checkSession(): Promise<boolean> {
   } catch (error) {
     user.value = undefined;
     if (!(error instanceof ApiError) || error.status !== 401) {
-      loginError.value =
-        "Die Sitzung konnte nicht geprüft werden. Bitte prüf, ob das Backend läuft und aktuell ist, und versuch es erneut.";
+      loginError.value = i18n.global.t("auth.sessionError");
     }
     return false;
   }
@@ -34,8 +34,8 @@ async function signIn(key: string): Promise<boolean> {
     return true;
   } catch (error) {
     loginError.value = error instanceof ApiError && error.status === 401
-      ? "Der Zugangsschlüssel ist ungültig."
-      : "Die Anmeldung ist gerade nicht möglich. Bitte versuch es erneut.";
+      ? i18n.global.t("auth.invalidKey")
+      : i18n.global.t("auth.loginError");
     return false;
   } finally {
     isLoggingIn.value = false;
@@ -53,8 +53,7 @@ async function signOut(): Promise<boolean> {
     loginError.value = undefined;
     return true;
   } catch {
-    logoutError.value =
-      "Die Abmeldung ist gerade nicht möglich. Bitte versuch es erneut.";
+    logoutError.value = i18n.global.t("auth.logoutError");
     return false;
   } finally {
     isLoggingOut.value = false;

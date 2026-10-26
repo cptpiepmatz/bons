@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { PhCaretDown, PhSignOut } from "@phosphor-icons/vue";
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
 import { useAuth } from "../composables/useAuth.ts";
@@ -9,6 +10,7 @@ import AppLogo from "./AppLogo.vue";
 import UserAvatar from "./UserAvatar.vue";
 
 const router = useRouter();
+const { t } = useI18n();
 
 const { user, signOut, isLoggingOut, logoutError } = useAuth();
 const userName = computed(() => user.value?.name ?? "");
@@ -38,7 +40,7 @@ async function logout() {
         <AppLogo class="logo mr-1" />
         <div class="is-flex is-flex-direction-row is-align-items-flex-end">
           <p class="title is-size-3 mb-0">bons</p>
-          <p class="ml-2 header-tagline">Eure Ausgaben. Alles im Blick.</p>
+          <p class="ml-2 header-tagline">{{ t("common.tagline") }}</p>
         </div>
       </a>
       <div
@@ -50,7 +52,7 @@ async function logout() {
           <button
             type="button"
             class="user-menu-trigger level is-mobile mb-0 is-gap-1 has-text-current"
-            :aria-label="`Benutzermenü für ${userName}`"
+            :aria-label="t('auth.userMenu', { name: userName })"
             aria-controls="user-dropdown"
             :aria-expanded="userDropdown.isActive.value"
             @click="userDropdown.toggle"
@@ -72,7 +74,7 @@ async function logout() {
                 <span class="icon">
                   <PhSignOut />
                 </span>
-                <span>Abmelden</span>
+                <span>{{ t("auth.signOut") }}</span>
               </span>
             </button>
             <p v-if="logoutError" class="help is-danger px-4" role="alert">

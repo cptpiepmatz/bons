@@ -2,13 +2,15 @@ import { computed, readonly, ref } from "vue";
 
 import { CurrencyFormatter } from "../models/currencyFormatter.ts";
 import { Api } from "../services/api.ts";
+import { useLocale } from "./useLocale.ts";
 
 const currency = ref<string>();
+const { formatLocale } = useLocale();
 
 const currencyFormatter = computed(() => {
   if (!currency.value) return;
 
-  return new CurrencyFormatter("de-DE", currency.value);
+  return new CurrencyFormatter(formatLocale.value, currency.value);
 });
 
 const currencySymbol = computed(() => {

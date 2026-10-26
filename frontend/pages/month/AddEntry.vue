@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { PhPlusSquare, PhX } from "@phosphor-icons/vue";
 import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 import AddEntryForm from "./AddEntryForm.vue";
 
 const { modal = false } = defineProps<{ modal?: boolean }>();
+const { t } = useI18n();
 const emit = defineEmits<{ created: [] }>();
 const dialog = ref<HTMLDialogElement>();
 const form = ref<InstanceType<typeof AddEntryForm>>();
@@ -47,17 +49,19 @@ defineExpose({ open });
             <PhPlusSquare weight="fill" size="2.5em" />
           </span>
           <div class="is-flex is-flex-direction-column">
-            <h2 id="add-entry-title" class="title is-size-5">Neue Ausgabe</h2>
-            <span class="subtitle is-size-7">Was habt ihr ausgegeben?</span>
+            <h2 id="add-entry-title"
+              class="title is-size-5">{{ t("spending.new") }}</h2>
+            <span class="subtitle is-size-7">{{ t("spending.question") }}</span>
           </div>
           <button v-if="modal" type="button" class="close-entry"
-            aria-label="Schließen" :disabled="isSaving"
+            :aria-label="t('common.close')" :disabled="isSaving"
             @click="close"><PhX size="1.4em" /></button>
         </header>
         <AddEntryForm ref="form" @created="onCreated">
           <template v-if="modal" #actions>
             <button type="button" class="button is-ghost is-fullwidth mt-2"
-              :disabled="isSaving" @click="close">Abbrechen</button>
+              :disabled="isSaving"
+              @click="close">{{ t("common.cancel") }}</button>
           </template>
         </AddEntryForm>
       </div>

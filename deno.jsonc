@@ -124,6 +124,7 @@
     "ts-morph": "npm:ts-morph@^28.0.0",
     "vite": "npm:vite@8.3.1",
     "vue": "npm:vue@3.5.43",
+    "vue-i18n": "npm:vue-i18n@^11.4.16",
     "vue-router": "npm:vue-router@^5.3.1"
   },
   "compilerOptions": {

@@ -7,6 +7,7 @@ import {
 } from "@phosphor-icons/vue";
 import dayjs, { type Dayjs } from "dayjs";
 import { computed, nextTick, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
 import { SpendingResponse } from "../../../bindings/SpendingResponse";
@@ -15,6 +16,7 @@ import { useAuth } from "../../composables/useAuth.ts";
 import { useCurrency } from "../../composables/useCurrency";
 import { useDeleteSpending } from "../../composables/useDeleteSpending.ts";
 import { useDropdown } from "../../composables/useDropdown.ts";
+import { useLocale } from "../../composables/useLocale.ts";
 import { categoryDisplayNames } from "../../generated/categories";
 import { Money } from "../../models/money";
 import { getMonth } from "../../models/month.ts";
@@ -32,6 +34,9 @@ const { monthDate, spendingEntries, isLoading, error } = defineProps<{
   error?: string;
 }>();
 const emit = defineEmits<{ retry: []; deleted: [] }>();
+const { t } = useI18n();
+const { locale, monthFormatter, shortDateFormatter: spentAtFormatter } =
+  useLocale();
 const { remove, clearError, isDeleting, error: deleteError } =
   useDeleteSpending();
 const { currencyFormatter } = useCurrency();
@@ -64,11 +69,6 @@ const sortedSpendingEntries = computed(() =>
 );
 
 const summary = computed(() => summarizeSpending(spendingEntries));
-
-const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
-  day: "numeric",
-  month: "short",
-});
 
 // actions
 async function confirmDelete(spending: SpendingResponse) {
@@ -120,7 +120,7 @@ function selectMonth() {
           <p class="control">
             <button
               class="button is-small"
-              aria-label="Vorheriger Monat"
+              :aria-label="t('spending.previousMonth')"
               @click="navigateMonth(monthDate.subtract(1, 'month'))"
             >
               <span class="icon is-large">
@@ -141,13 +141,13 @@ function selectMonth() {
               class="button is-small month-button"
               @click="monthDateInput?.showPicker()"
             >
-              <span>{{ monthDate.format("MMMM YYYY") }}</span>
+              <span>{{ monthFormatter.format(monthDate.toDate()) }}</span>
             </button>
           </p>
           <p class="control">
             <button
               class="button is-small"
-              aria-label="Nächster Monat"
+              :aria-label="t('spending.nextMonth')"
               @click="navigateMonth(monthDate.add(1, 'month'))"
             >
               <span class="icon is-large">
@@ -162,33 +162,34 @@ function selectMonth() {
           </p>
         </div>
         <div>
-          <p class="is-size-7">Insgesamt ausgegeben</p>
+          <p class="is-size-7">{{ t("spending.total") }}</p>
         </div>
         <div>
-          <p v-if="isLoading" role="status">Ausgaben werden geladen …</p>
+          <p v-if="isLoading" role="status">{{ t("spending.loading") }}</p>
           <div v-else-if="error" role="alert" class="has-text-danger">
-            <p>Ausgaben konnten nicht geladen werden.</p>
+            <p>{{ t("spending.loadError") }}</p>
             <p class="is-size-7">{{ error }}</p>
             <button class="button is-small mt-2"
-              @click="emit('retry')">Erneut versuchen</button>
+              @click="emit('retry')">{{ t("common.retry") }}</button>
           </div>
           <p v-else-if="spendingEntries.length">
-            {{ spendingEntries.length }} Ausgaben
+            {{ t("spending.count", spendingEntries.length) }}
           </p>
           <p v-else>
-            keine Ausgaben
+            {{ t("spending.empty") }}
           </p>
         </div>
       </div>
     </div>
     <hr class="m-0">
     <div class="card-content py-3">
-      <p class="title is-6 mb-2">Nach Kategorien</p>
-      <p v-if="isLoading" class="is-size-7">Kategorien werden geladen …</p>
+      <p class="title is-6 mb-2">{{ t("spending.byCategory") }}</p>
+      <p v-if="isLoading"
+        class="is-size-7">{{ t("spending.categoriesLoading") }}</p>
       <p v-else-if="error"
-        class="is-size-7">Keine Kategorieübersicht verfügbar.</p>
+        class="is-size-7">{{ t("spending.categoriesUnavailable") }}</p>
       <p v-else-if="!summary.categories.length"
-        class="is-size-7">Noch keine Ausgaben in diesem Monat.</p>
+        class="is-size-7">{{ t("spending.monthEmpty") }}</p>
       <div v-else class="fixed-grid">
         <div class="grid">
           <div
@@ -203,7 +204,7 @@ function selectMonth() {
               </p>
               <div class="is-flex is-flex-direction-column">
                 <p class="subtitle is-7 mb-0">
-                  {{ categoryDisplayNames[category].de }}
+                  {{ categoryDisplayNames[category][locale] }}
                 </p>
                 <p class="title is-6 mb-0">
                   {{ currencyFormatter && spent.format(currencyFormatter) }}
@@ -218,7 +219,7 @@ function selectMonth() {
     <div class="card-content pt-3">
       <div class="entries-heading level is-mobile mb-1">
         <span class="level-left">
-          <span class="title is-6">Alle Ausgaben</span>
+          <span class="title is-6">{{ t("spending.all") }}</span>
         </span>
         <span class="level-right">
           <div
@@ -234,7 +235,7 @@ function selectMonth() {
                 @click="sortDropdown.toggle"
               >
                 <span class="level-item is-size-7">
-                  {{ sortOptionDisplayNames[selectedSortOption].de }}
+                  {{ sortOptionDisplayNames[selectedSortOption][locale] }}
                 </span>
                 <span class="icon is-small level-item">
                   <PhCaretDown />
@@ -253,7 +254,7 @@ function selectMonth() {
                   @keydown.space.prevent="selectedSortOption = option; sortDropdown.close()"
                   @click="selectedSortOption = option; sortDropdown.close()"
                 >
-                  {{ sortOptionDisplayNames[option].de }}
+                  {{ sortOptionDisplayNames[option][locale] }}
                 </a>
               </div>
             </div>
@@ -287,10 +288,10 @@ function selectMonth() {
                     <span class="level-left is-gap-1">
                       <span>{{ spentAtFormatter.format(dayjs.unix(spending.spent_at).toDate()) }}</span>
                       <span>&middot;</span>
-                      <span>{{ spending.user_id === user?.id ? user.name : `User ${spending.user_id}` }}</span>
+                      <span>{{ spending.user_id === user?.id ? user.name : t("common.user", { id: spending.user_id }) }}</span>
                       <span class="spending-category">&middot;</span>
                       <span
-                        class="spending-category">{{ categoryDisplayNames[spending.category].de }}</span>
+                        class="spending-category">{{ categoryDisplayNames[spending.category][locale] }}</span>
                     </span>
                   </p>
                 </div>
@@ -309,7 +310,7 @@ function selectMonth() {
                 <button
                   type="button"
                   class="icon delete-spending"
-                  :aria-label="`${spending.description} löschen`"
+                  :aria-label="t('spending.deleteLabel', { description: spending.description })"
                   @click="confirmDelete(spending)"
                 >
                   <PhTrash />
@@ -334,13 +335,13 @@ function selectMonth() {
       <div v-if="spendingToDelete" class="modal-card">
         <header class="modal-card-head">
           <p id="delete-spending-title"
-            class="modal-card-title">Ausgabe löschen</p>
-          <button type="button" class="delete" aria-label="Schließen"
+            class="modal-card-title">{{ t("spending.deleteTitle") }}</p>
+          <button type="button" class="delete" :aria-label="t('common.close')"
             :disabled="isDeleting" @click="closeDeleteModal"></button>
         </header>
         <section class="modal-card-body">
           <p id="delete-spending-question"
-            class="mb-4">Möchtest du diese Ausgabe wirklich löschen?</p>
+            class="mb-4">{{ t("spending.deleteQuestion") }}</p>
           <div
             class="delete-spending-heading has-background-primary-light has-radius-normal p-4 mb-5">
             <span
@@ -353,34 +354,35 @@ function selectMonth() {
           </div>
           <div class="columns is-justify-content-space-around">
             <div class="column is-narrow">
-              <p class="has-text-weight-semibold">Betrag</p>
+              <p class="has-text-weight-semibold">{{ t("common.amount") }}</p>
               <p>{{ currencyFormatter && Money.fromCents(spendingToDelete.spent_cents).format(currencyFormatter) }}</p>
             </div>
             <div class="column is-narrow">
-              <p class="has-text-weight-semibold">Datum</p>
+              <p class="has-text-weight-semibold">{{ t("common.date") }}</p>
               <p>{{ spentAtFormatter.format(dayjs.unix(spendingToDelete.spent_at).toDate()) }}</p>
             </div>
             <div class="column is-narrow">
-              <p class="has-text-weight-semibold">Eingetragen von</p>
-              <p>{{ spendingToDelete.user_id === user?.id ? user.name : `User ${spendingToDelete.user_id}` }}</p>
+              <p
+                class="has-text-weight-semibold">{{ t("common.enteredBy") }}</p>
+              <p>{{ spendingToDelete.user_id === user?.id ? user.name : t("common.user", { id: spendingToDelete.user_id }) }}</p>
             </div>
             <div class="column is-narrow">
-              <p class="has-text-weight-semibold">Kategorie</p>
-              <p>{{ categoryDisplayNames[spendingToDelete.category].de }}</p>
+              <p class="has-text-weight-semibold">{{ t("common.category") }}</p>
+              <p>{{ categoryDisplayNames[spendingToDelete.category][locale] }}</p>
             </div>
           </div>
           <p v-if="deleteError" class="help is-danger mt-3" role="alert">
-            Die Ausgabe konnte nicht gelöscht werden. {{ deleteError }}
+            {{ t("spending.deleteError") }} {{ deleteError }}
           </p>
         </section>
         <footer class="modal-card-foot is-justify-content-flex-end">
           <div class="buttons">
             <button type="button" class="button" autofocus
               :disabled="isDeleting"
-              @click="closeDeleteModal">Abbrechen</button>
+              @click="closeDeleteModal">{{ t("common.cancel") }}</button>
             <button type="button" class="button is-danger"
               :class="{ 'is-loading': isDeleting }" :disabled="isDeleting"
-              @click="deleteSpending">Löschen</button>
+              @click="deleteSpending">{{ t("common.delete") }}</button>
           </div>
         </footer>
       </div>

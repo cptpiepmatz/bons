@@ -2,6 +2,7 @@
 import { PhPlus } from "@phosphor-icons/vue";
 import type { Dayjs } from "dayjs";
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 import AppHeader from "../../components/AppHeader.vue";
 import { useMediaQuery } from "../../composables/useMediaQuery.ts";
@@ -10,6 +11,7 @@ import AddEntry from "./AddEntry.vue";
 import MonthSummary from "./MonthSummary.vue";
 
 const { monthDate } = defineProps<{ monthDate: Dayjs }>();
+const { t } = useI18n();
 const isMobile = useMediaQuery("(max-width: 768px)");
 const addEntry = ref<InstanceType<typeof AddEntry>>();
 const { spendingEntries, isLoading, error, refresh } = useMonthSpending(() =>
@@ -111,8 +113,8 @@ const { spendingEntries, isLoading, error, refresh } = useMonthSpending(() =>
     <hr class="m-0 is-flex-shrink-0">
     <main class="is-flex is-flex-grow-1 is-justify-content-center">
       <div class="mobile-heading">
-        <h1>Unsere Ausgaben</h1>
-        <p>Eure Ausgaben. Alles im Blick.</p>
+        <h1>{{ t("spending.title") }}</h1>
+        <p>{{ t("common.tagline") }}</p>
       </div>
       <div class="columns content-width m-0">
         <div class="column is-two-thirds pr-0">
@@ -134,7 +136,7 @@ const { spendingEntries, isLoading, error, refresh } = useMonthSpending(() =>
       <button type="button" class="button is-primary is-fullwidth"
         @click="addEntry?.open()">
         <span class="icon"><PhPlus weight="bold" /></span>
-        <span>Ausgabe hinzufügen</span>
+        <span>{{ t("spending.add") }}</span>
       </button>
     </div>
   </div>
