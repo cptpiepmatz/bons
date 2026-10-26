@@ -5,12 +5,13 @@ import {
   PhPencilSimple,
 } from "@phosphor-icons/vue";
 import dayjs from "dayjs";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import { useCreateSpending } from "../../composables/useCreateSpending.ts";
 import { useCurrency } from "../../composables/useCurrency.ts";
 import { useDropdown } from "../../composables/useDropdown.ts";
+import { useMediaQuery } from "../../composables/useMediaQuery.ts";
 import {
   categories,
   categoryDisplayNames,
@@ -33,6 +34,10 @@ const spentAt = ref(dayjs());
 const spentText = ref("");
 const isSpentValid = ref(true);
 const categoryDropdown = useDropdown();
+const useNativeCategoryPicker = useMediaQuery(
+  "(pointer: coarse) and (hover: none)",
+);
+watch(useNativeCategoryPicker, categoryDropdown.close);
 const spentAtInputDate = ref<HTMLInputElement>();
 const spentAtInputText = ref<HTMLInputElement>();
 
@@ -166,13 +171,22 @@ function onDescriptionInput(event: Event) {
         <label class="label mb-0" for="category">Kategorie</label>
         <div class="field has-addons">
           <div class="control is-expanded">
-            <input type="hidden" name="category" :value="selectedCategory">
+            <div v-if="useNativeCategoryPicker" class="select is-fullwidth">
+              <select id="category" v-model="selectedCategory" name="category">
+                <option v-for="category in categories" :key="category"
+                  :value="category">
+                  {{ categoryDisplayNames[category].de }}
+                </option>
+              </select>
+            </div>
             <div
+              v-else
               :ref="categoryDropdown.element"
               class="dropdown is-block"
               :class="{ 'is-active': categoryDropdown.isActive.value }"
               @keydown.esc="onCategoryEscape"
             >
+              <input type="hidden" name="category" :value="selectedCategory">
               <div class="dropdown-trigger">
                 <button
                   id="category"
