@@ -1,5 +1,4 @@
 import type { Category } from "../../bindings/Category.ts";
-
 import { categoryAliases } from "./categoryAliases.ts";
 
 export type CategorySuggestion = {

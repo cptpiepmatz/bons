@@ -12,7 +12,6 @@ import {
   PhSock,
   PhSprayBottle,
 } from "@phosphor-icons/vue";
-
 import type { Component } from "vue";
 
 import type { Category } from "../../bindings/Category.ts";

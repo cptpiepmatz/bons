@@ -1,8 +1,6 @@
-import { categoryRecord } from "../generated/categories.ts";
-
 import type { Category } from "../../bindings/Category.ts";
 import type { SpendingResponse } from "../../bindings/SpendingResponse.ts";
-
+import { categoryRecord } from "../generated/categories.ts";
 import { Money } from "./money.ts";
 
 export function summarizeSpending(

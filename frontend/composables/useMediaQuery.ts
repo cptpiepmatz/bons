@@ -1,6 +1,5 @@
-import { onMounted, onUnmounted, ref } from "vue";
-
 import type { Ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 
 type MediaQueryMatches = {
   matches: boolean;

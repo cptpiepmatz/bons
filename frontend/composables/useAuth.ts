@@ -1,8 +1,7 @@
 import { readonly, ref } from "vue";
 
-import { Api, ApiError } from "../services/api.ts";
-
 import type { UserResponse } from "../../bindings/UserResponse.ts";
+import { Api, ApiError } from "../services/api.ts";
 
 const user = ref<UserResponse>();
 const isLoggingIn = ref(false);

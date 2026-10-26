@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { PhPlus } from "@phosphor-icons/vue";
-import { ref } from "vue";
-
 import type { Dayjs } from "dayjs";
+import { ref } from "vue";
 
 import AppHeader from "../../components/AppHeader.vue";
 import { useMediaQuery } from "../../composables/useMediaQuery.ts";
