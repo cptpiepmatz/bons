@@ -112,13 +112,15 @@ function selectMonth() {
 </script>
 
 <template>
-  <div class="card" style="min-height: 100%;" @scroll="sortDropdown.close">
+  <div class="card month-summary" style="min-height: 100%;"
+    @scroll="sortDropdown.close">
     <div class="card-content pb-1">
       <div class="is-flex is-flex-direction-column is-align-items-center">
         <div class="field has-addons">
           <p class="control">
             <button
               class="button is-small"
+              aria-label="Vorheriger Monat"
               @click="navigateMonth(monthDate.subtract(1, 'month'))"
             >
               <span class="icon is-large">
@@ -134,10 +136,9 @@ function selectMonth() {
             @change="selectMonth"
             style="width: 10rem;"
           />
-          <p class="control">
+          <p class="control month-control">
             <button
-              class="button is-small"
-              style="width: 10rem;"
+              class="button is-small month-button"
               @click="monthDateInput?.showPicker()"
             >
               <span>{{ monthDate.format("MMMM YYYY") }}</span>
@@ -146,6 +147,7 @@ function selectMonth() {
           <p class="control">
             <button
               class="button is-small"
+              aria-label="Nächster Monat"
               @click="navigateMonth(monthDate.add(1, 'month'))"
             >
               <span class="icon is-large">
@@ -214,7 +216,7 @@ function selectMonth() {
     </div>
     <hr class="m-0">
     <div class="card-content pt-3">
-      <p class="level mb-1">
+      <div class="entries-heading level is-mobile mb-1">
         <span class="level-left">
           <span class="title is-6">Alle Ausgaben</span>
         </span>
@@ -227,7 +229,7 @@ function selectMonth() {
             <span class="dropdown-trigger">
               <button
                 type="button"
-                class="level is-gap-1"
+                class="sort-trigger level is-mobile is-gap-1"
                 :aria-expanded="sortDropdown.isActive.value"
                 @click="sortDropdown.toggle"
               >
@@ -245,6 +247,10 @@ function selectMonth() {
                   v-for="option in sortOptions"
                   :key="option"
                   class="dropdown-item"
+                  role="menuitem"
+                  tabindex="0"
+                  @keydown.enter="selectedSortOption = option; sortDropdown.close()"
+                  @keydown.space.prevent="selectedSortOption = option; sortDropdown.close()"
                   @click="selectedSortOption = option; sortDropdown.close()"
                 >
                   {{ sortOptionDisplayNames[option].de }}
@@ -253,11 +259,12 @@ function selectMonth() {
             </div>
           </div>
         </span>
-      </p>
+      </div>
       <div class="table-container">
         <table class="table is-fullwidth is-hoverable">
           <tbody>
-            <tr v-for="spending in sortedSpendingEntries" :key="spending.id">
+            <tr v-for="spending in sortedSpendingEntries" :key="spending.id"
+              class="spending-row">
               <td class="is-narrow is-vcentered">
                 <p class="
                   icon 
@@ -270,23 +277,26 @@ function selectMonth() {
                   <CategoryIcon :category="spending.category" size="1.5em" />
                 </p>
               </td>
-              <td class="is-vcentered">
+              <td class="spending-details is-vcentered">
                 <div>
                   <p class="spending-description has-text-weight-semibold">
                     {{ spending.description }}
                   </p>
-                  <p class="is-size-7 has-text-text level">
+                  <p
+                    class="spending-metadata is-size-7 has-text-text level is-mobile">
                     <span class="level-left is-gap-1">
                       <span>{{ spentAtFormatter.format(dayjs.unix(spending.spent_at).toDate()) }}</span>
                       <span>&middot;</span>
                       <span>{{ spending.user_id === user?.id ? user.name : `User ${spending.user_id}` }}</span>
-                      <span>&middot;</span>
-                      <span>{{ categoryDisplayNames[spending.category].de }}</span>
+                      <span class="spending-category">&middot;</span>
+                      <span
+                        class="spending-category">{{ categoryDisplayNames[spending.category].de }}</span>
                     </span>
                   </p>
                 </div>
               </td>
               <td class="
+                spending-amount
                 is-narrow 
                 is-vcentered
                 has-text-right 
@@ -365,7 +375,8 @@ function selectMonth() {
         </section>
         <footer class="modal-card-foot is-justify-content-flex-end">
           <div class="buttons">
-            <button type="button" class="button" autofocus :disabled="isDeleting"
+            <button type="button" class="button" autofocus
+              :disabled="isDeleting"
               @click="closeDeleteModal">Abbrechen</button>
             <button type="button" class="button is-danger"
               :class="{ 'is-loading': isDeleting }" :disabled="isDeleting"
@@ -378,6 +389,10 @@ function selectMonth() {
 </template>
 
 <style scoped lang="scss">
+.month-button {
+  width: 10rem;
+}
+
 .category-summary {
   border: var(--bulma-control-border-width) solid var(--bulma-border);
 }
@@ -412,5 +427,185 @@ function selectMonth() {
   justify-content: center;
   align-items: center;
   gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .month-summary {
+    min-height: 0 !important;
+    border-radius: 0;
+    box-shadow: none;
+
+    > .card-content {
+      padding-inline: 0;
+    }
+
+    > .card-content:first-child {
+      padding-top: 0;
+      padding-bottom: 1.5rem !important;
+
+      .field.has-addons {
+        width: 100%;
+        margin-bottom: 1.5rem;
+      }
+
+      .month-control {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .month-button {
+        width: 100%;
+      }
+
+      .button {
+        min-height: 2.75rem;
+      }
+      .title {
+        font-size: 2.5rem;
+        letter-spacing: -.045em;
+        color: var(--bulma-text-strong);
+      }
+      p {
+        color: var(--bulma-text-weak);
+        font-size: .8rem;
+      }
+    }
+  }
+
+  .fixed-grid .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .65rem;
+    margin-top: .85rem;
+    margin-bottom: .5rem;
+  }
+
+  .category-summary {
+    padding: .8rem .65rem !important;
+    min-width: 0;
+
+    > div {
+      gap: .5rem !important;
+    }
+    .icon {
+      flex-shrink: 0;
+      width: 1.8rem;
+      height: 1.8rem;
+    }
+    .icon :deep(svg) {
+      width: 1.8rem;
+      height: 1.8rem;
+    }
+    .subtitle {
+      font-size: .7rem !important;
+      overflow-wrap: anywhere;
+    }
+    .title {
+      font-size: .95rem !important;
+      margin-top: .25rem;
+      white-space: nowrap;
+    }
+  }
+
+  .entries-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .5rem;
+    min-height: 2.75rem;
+
+    > .level-left,
+     > .level-right {
+      margin: 0;
+    }
+    .title {
+      white-space: nowrap;
+    }
+  }
+
+  .sort-trigger {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    margin-bottom: 0;
+
+    .level-item {
+      margin: 0;
+      font-size: .7rem !important;
+    }
+  }
+
+  .table-container {
+    overflow: visible;
+  }
+  .table,
+  .table tbody {
+    display: block;
+    width: 100%;
+  }
+  .spending-row {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr) auto 2.25rem;
+    align-items: center;
+    gap: .5rem;
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--bulma-border-weak);
+
+    td {
+      padding: 0;
+      border: 0;
+      min-width: 0;
+    }
+    .icon.is-medium {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+
+  .spending-description {
+    font-size: .85rem;
+    overflow-wrap: anywhere;
+  }
+  .spending-metadata {
+    margin-top: .3rem;
+
+    > .level-left {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: baseline;
+      gap: .15rem .3rem !important;
+      font-size: .65rem;
+      overflow-wrap: anywhere;
+      color: var(--bulma-text-weak);
+    }
+
+    .spending-category {
+      display: none;
+    }
+  }
+
+  .spending-row .spending-amount {
+    font-size: .9rem !important;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .delete-spending {
+    width: 2.25rem;
+    height: 2.75rem;
+  }
+  .delete-modal .modal-card {
+    max-height: calc(100dvh - 2rem);
+    margin-inline: 1rem;
+    width: calc(100% - 2rem);
+  }
+  .delete-spending-heading {
+    grid-template-columns: 2rem minmax(0, 1fr);
+  }
+  .delete-spending-heading h3 {
+    font-size: 1.1rem;
+    overflow-wrap: anywhere;
+  }
 }
 </style>

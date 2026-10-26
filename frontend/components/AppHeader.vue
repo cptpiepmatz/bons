@@ -24,7 +24,7 @@ async function logout() {
 <template>
   <div class="is-flex is-justify-content-center">
     <div
-      class="
+      class="header-content
         is-flex
         is-justify-content-space-between
         content-width
@@ -38,7 +38,7 @@ async function logout() {
         <AppLogo class="logo mr-1" />
         <div class="is-flex is-flex-direction-row is-align-items-flex-end">
           <p class="title is-size-3 mb-0">bons</p>
-          <p class="ml-2">Eure Ausgaben. Alles im Blick.</p>
+          <p class="ml-2 header-tagline">Eure Ausgaben. Alles im Blick.</p>
         </div>
       </a>
       <div
@@ -46,16 +46,17 @@ async function logout() {
         class="dropdown is-right is-flex is-align-items-center is-justify-content-flex-end"
         :class="{ 'is-active': userDropdown.isActive.value }"
       >
-        <UserAvatar :user-name="userName" class="avatar mr-2" />
         <div class="dropdown-trigger">
           <button
             type="button"
-            class="level mb-0 is-gap-1 has-text-current"
+            class="user-menu-trigger level is-mobile mb-0 is-gap-1 has-text-current"
+            :aria-label="`Benutzermenü für ${userName}`"
             aria-controls="user-dropdown"
             :aria-expanded="userDropdown.isActive.value"
             @click="userDropdown.toggle"
           >
-            <span>{{ userName }}</span>
+            <UserAvatar :user-name="userName" class="avatar mr-2" />
+            <span class="user-name">{{ userName }}</span>
             <span class="icon"><PhCaretDown /></span>
           </button>
         </div>
@@ -93,5 +94,39 @@ async function logout() {
 .avatar {
   width: 2.3em;
   height: auto;
+}
+
+.user-menu-trigger {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    margin: 0 !important;
+    padding: .9rem 1.25rem;
+    gap: 1rem;
+  }
+
+  .header-tagline,
+  .user-name {
+    display: none;
+  }
+
+  .logo {
+    width: 2.75rem;
+    flex-shrink: 0;
+  }
+
+  .title {
+    white-space: nowrap;
+  }
+
+  .user-menu-trigger {
+    min-height: 2.75rem;
+    .avatar {
+      margin-right: 0 !important;
+    }
+  }
 }
 </style>
