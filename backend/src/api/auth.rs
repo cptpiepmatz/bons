@@ -2,7 +2,7 @@ use axum::{
     extract::{Request, State},
     http::{header::SET_COOKIE, HeaderMap, HeaderValue, StatusCode},
     middleware::Next,
-    response::Response,
+    response::{IntoResponse, Response},
 };
 use cookie::{Cookie, SameSite};
 use std::env;
@@ -38,6 +38,33 @@ pub async fn require_session(
         );
     }
 
+    Ok(response)
+}
+
+pub async fn logout(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+) -> Result<Response, StatusCode> {
+    if let Ok(token) = session_token_from_cookies(&headers) {
+        state
+            .db
+            .lock()
+            .await
+            .revoke_session(&token)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    }
+
+    let mut cookie =
+        Cookie::parse(session_cookie("")).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    cookie.make_removal();
+
+    let mut response = StatusCode::NO_CONTENT.into_response();
+    response.headers_mut().insert(
+        SET_COOKIE,
+        HeaderValue::from_str(&cookie.to_string())
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
+    );
     Ok(response)
 }
 

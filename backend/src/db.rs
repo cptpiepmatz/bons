@@ -180,6 +180,14 @@ impl Db {
         Ok(CreatedSessionToken { user, token })
     }
 
+    pub async fn revoke_session(&mut self, token: &SessionToken) -> sqlx::Result<()> {
+        let token_hash = token.hash();
+        sqlx::query!("DELETE FROM sessions WHERE token_hash = ?", token_hash)
+            .execute(&mut self.conn)
+            .await?;
+        Ok(())
+    }
+
     pub async fn verify_session(&mut self, token: &SessionToken) -> sqlx::Result<Option<User>> {
         let token_hash = token.hash();
         let now = Utc::now();

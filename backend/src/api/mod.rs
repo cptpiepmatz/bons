@@ -34,6 +34,7 @@ pub fn router(state: AppState) -> Router<AppState> {
     Router::new()
         .route("/currency", get(currency))
         .route("/login", post(login))
+        .route("/logout", post(auth::logout))
         .merge(protected_routes)
         .fallback(|| async { StatusCode::NOT_FOUND })
 }
