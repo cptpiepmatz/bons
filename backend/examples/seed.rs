@@ -8,51 +8,80 @@ use bons::{
 };
 use chrono::{DateTime, Datelike, Duration, Months, TimeZone, Utc};
 
-const DEV_KEY: &str = "bons2667-all-your-receipts-are-belong-to-us";
-// Current month first: deliberately mix short and long spending lists.
-const MONTH_ENTRY_COUNTS: [usize; 6] = [18, 7, 26, 12, 34, 9];
+static_toml::static_toml! {
+    static SEED = include_toml!("backend/examples/seed.toml");
+}
+
+#[derive(Clone, Copy)]
+enum Locale {
+    English,
+    German,
+}
+
+impl Locale {
+    fn from_language(language: &str) -> Option<Self> {
+        match language
+            .split(['-', '_', '.', '@'])
+            .next()?
+            .to_ascii_lowercase()
+            .as_str()
+        {
+            "en" => Some(Self::English),
+            "de" => Some(Self::German),
+            _ => None,
+        }
+    }
+
+    fn from_env_or_os() -> Result<Self, Box<dyn std::error::Error>> {
+        match std::env::var("BONS_SEED_LOCALE") {
+            Ok(language) => Self::from_language(&language).ok_or_else(|| {
+                format!(
+                    "Unsupported BONS_SEED_LOCALE {language:?}; expected English (en) or German (de)."
+                )
+                .into()
+            }),
+            Err(std::env::VarError::NotPresent) => Ok(Self::detect()),
+            Err(error) => Err(error.into()),
+        }
+    }
+
+    fn detect() -> Self {
+        // Use the first supported OS language, just as the frontend does for the browser.
+        sys_locale::get_locales()
+            .find_map(|locale| Self::from_language(&locale))
+            .unwrap_or(Self::English)
+    }
+
+    fn language(self) -> &'static str {
+        match self {
+            Self::English => "en",
+            Self::German => "de",
+        }
+    }
+}
 
 fn month_entries(
     month: DateTime<Utc>,
     months_ago: usize,
+    locale: Locale,
 ) -> Vec<(DateTime<Utc>, i64, &'static str, Category)> {
-    let purchases = [
-        (8649, "Wocheneinkauf bei REWE", Category::Groceries),
-        (1275, "Drogerieartikel bei dm", Category::Drugstore),
-        (320, "Fahrkarte für die Straßenbahn", Category::Transport),
-        (4250, "Abendessen beim Italiener", Category::Dining),
-        (2990, "Geburtstagsgeschenk", Category::Gifts),
-        (1800, "Kino", Category::Leisure),
-        (3850, "Haarschnitt", Category::Selfcare),
-        (5990, "Neue Schuhe", Category::Fashion),
-        (2475, "Pflanzen für den Balkon", Category::Home),
-        (1490, "Apotheke", Category::Health),
-        (950, "Porto und Versand", Category::Other),
-        (4832, "Einkauf bei ALDI", Category::Groceries),
-        (890, "Kaffee und Kuchen", Category::Dining),
-        (2195, "Haushaltsartikel bei Rossmann", Category::Drugstore),
-        (5800, "Bahnfahrt am Wochenende", Category::Transport),
-        (2500, "Museum und Ausstellung", Category::Leisure),
-        (6500, "Massage", Category::Selfcare),
-        (3499, "Pullover", Category::Fashion),
-        (7990, "Regal fürs Wohnzimmer", Category::Home),
-        (2800, "Physiotherapie", Category::Health),
-        (1990, "Blumen als Mitbringsel", Category::Gifts),
-        (1200, "Schlüsseldienst: Ersatzschlüssel", Category::Other),
-        (2367, "Obst und Gemüse vom Wochenmarkt", Category::Groceries),
-        (1670, "Mittagessen im Bistro", Category::Dining),
-    ];
-    let count = MONTH_ENTRY_COUNTS[months_ago];
+    let purchases = &SEED.purchases;
+    let count = usize::try_from(SEED.month_entry_counts[months_ago])
+        .expect("seed month entry counts must be non-negative");
     let days = (month.checked_add_months(Months::new(1)).unwrap() - month).num_days();
 
     (0..count)
         .map(|index| {
-            let (cents, description, category) =
-                purchases[(index * 5 + months_ago * 3) % purchases.len()];
+            let purchase = &purchases[(index * 5 + months_ago * 3) % purchases.len()];
+            let description = match locale {
+                Locale::English => purchase.en,
+                Locale::German => purchase.de,
+            };
+            let category = purchase.category.parse().expect("invalid seed category");
             let day = index as i64 * days / count as i64;
             (
                 month + Duration::days(day),
-                cents + months_ago as i64 * 137 + (index / purchases.len()) as i64 * 79,
+                purchase.cents + months_ago as i64 * 137 + (index / purchases.len()) as i64 * 79,
                 description,
                 category,
             )
@@ -84,12 +113,18 @@ fn reserve_database(database: &Path) -> std::io::Result<()> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let locale = Locale::from_env_or_os()?;
+    println!("Seed language: {}", locale.language());
     let database = DATABASE_PATH.as_path();
     reserve_database(database)?;
 
     let mut db = Db::connect_at(database).await?;
     let user = db
-        .create_user_with_key("Development", true, Key::from_base64(DEV_KEY).unwrap())
+        .create_user_with_key(
+            SEED.user.name,
+            SEED.user.admin,
+            Key::from_base64(SEED.user.access_key).expect("invalid seed access key"),
+        )
         .await?
         .user;
 
@@ -99,11 +134,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .single()
         .unwrap();
     let mut total_entries = 0;
-    for months_ago in 0..MONTH_ENTRY_COUNTS.len() {
+    for months_ago in 0..SEED.month_entry_counts.len() {
         let month = current_month
             .checked_sub_months(Months::new(months_ago as u32))
             .unwrap();
-        let entries = month_entries(month, months_ago);
+        let entries = month_entries(month, months_ago, locale);
         total_entries += entries.len();
         for (spent_at, cents, description, category) in entries {
             db.create_spending(
@@ -118,16 +153,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!(
             "{}: {} spending entries",
             month.format("%Y-%m"),
-            MONTH_ENTRY_COUNTS[months_ago]
+            SEED.month_entry_counts[months_ago]
         );
     }
 
     println!(
         "Created {} with {total_entries} spending entries across {} months.",
         database.display(),
-        MONTH_ENTRY_COUNTS.len()
+        SEED.month_entry_counts.len()
     );
-    println!("Development access key: {DEV_KEY}");
+    println!("Development access key: {}", SEED.user.access_key);
     println!("This is a public, development-only key. Never use it in production.");
     Ok(())
 }

@@ -1,0 +1,152 @@
+# Current month first: deliberately mix short and long spending lists.
+month_entry_counts = [18, 7, 26, 12, 34, 9]
+
+[user]
+name = "Development"
+admin = true
+# Public, development-only key. Never use it in production.
+access_key = "bons2667-all-your-receipts-are-belong-to-us"
+
+[[purchases]]
+cents = 8649
+category = "groceries"
+en = "Weekly groceries at REWE"
+de = "Wocheneinkauf bei REWE"
+
+[[purchases]]
+cents = 1275
+category = "drugstore"
+en = "Toiletries at dm"
+de = "Drogerieartikel bei dm"
+
+[[purchases]]
+cents = 320
+category = "transport"
+en = "Tram ticket"
+de = "Fahrkarte für die Straßenbahn"
+
+[[purchases]]
+cents = 4250
+category = "dining"
+en = "Dinner at the Italian restaurant"
+de = "Abendessen beim Italiener"
+
+[[purchases]]
+cents = 2990
+category = "gifts"
+en = "Birthday present"
+de = "Geburtstagsgeschenk"
+
+[[purchases]]
+cents = 1800
+category = "leisure"
+en = "Cinema"
+de = "Kino"
+
+[[purchases]]
+cents = 3850
+category = "selfcare"
+en = "Haircut"
+de = "Haarschnitt"
+
+[[purchases]]
+cents = 5990
+category = "fashion"
+en = "New shoes"
+de = "Neue Schuhe"
+
+[[purchases]]
+cents = 2475
+category = "home"
+en = "Plants for the balcony"
+de = "Pflanzen für den Balkon"
+
+[[purchases]]
+cents = 1490
+category = "health"
+en = "Pharmacy"
+de = "Apotheke"
+
+[[purchases]]
+cents = 950
+category = "other"
+en = "Postage and shipping"
+de = "Porto und Versand"
+
+[[purchases]]
+cents = 4832
+category = "groceries"
+en = "Groceries at ALDI"
+de = "Einkauf bei ALDI"
+
+[[purchases]]
+cents = 890
+category = "dining"
+en = "Coffee and cake"
+de = "Kaffee und Kuchen"
+
+[[purchases]]
+cents = 2195
+category = "drugstore"
+en = "Household supplies at Rossmann"
+de = "Haushaltsartikel bei Rossmann"
+
+[[purchases]]
+cents = 5800
+category = "transport"
+en = "Weekend train trip"
+de = "Bahnfahrt am Wochenende"
+
+[[purchases]]
+cents = 2500
+category = "leisure"
+en = "Museum and exhibition"
+de = "Museum und Ausstellung"
+
+[[purchases]]
+cents = 6500
+category = "selfcare"
+en = "Massage"
+de = "Massage"
+
+[[purchases]]
+cents = 3499
+category = "fashion"
+en = "Sweater"
+de = "Pullover"
+
+[[purchases]]
+cents = 7990
+category = "home"
+en = "Living room shelf"
+de = "Regal fürs Wohnzimmer"
+
+[[purchases]]
+cents = 2800
+category = "health"
+en = "Physiotherapy"
+de = "Physiotherapie"
+
+[[purchases]]
+cents = 1990
+category = "gifts"
+en = "Flowers for the host"
+de = "Blumen als Mitbringsel"
+
+[[purchases]]
+cents = 1200
+category = "other"
+en = "Locksmith: spare key"
+de = "Schlüsseldienst: Ersatzschlüssel"
+
+[[purchases]]
+cents = 2367
+category = "groceries"
+en = "Fruit and vegetables from the farmers' market"
+de = "Obst und Gemüse vom Wochenmarkt"
+
+[[purchases]]
+cents = 1670
+category = "dining"
+en = "Lunch at the bistro"
+de = "Mittagessen im Bistro"

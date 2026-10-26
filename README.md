@@ -106,9 +106,18 @@ never touched by these tasks.
 The example creates a new database with an admin named `Development` and 106
 entries across the current and five previous UTC calendar months. Each month has
 different purchases, amounts, and entry counts (between 7 and 34), with dates
-distributed throughout the actual calendar month. The seed example fails without
-modifying an existing database. Log in with the following development-only
-access key:
+distributed throughout the actual calendar month. Purchases and monthly entry
+counts and development user settings (including the public access key) are
+defined in `backend/examples/seed.toml` and embedded at compile time using
+`static-toml`. Purchase descriptions use the first English or German language in
+the OS preferences (via `sys-locale`), falling back to English. Set
+`BONS_SEED_LOCALE=en` or `BONS_SEED_LOCALE=de` to override OS detection;
+regional variants such as `de-DE` also work. Unsupported or empty overrides fail
+before the seed example creates a database. OS preferences may differ from the
+browser language used by the frontend. The selected seed language is printed
+when the example starts; changing the browser language does not translate
+existing entries. The seed example fails without modifying an existing database.
+Log in with the following development-only access key:
 
 ```text
 bons2667-all-your-receipts-are-belong-to-us
