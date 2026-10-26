@@ -129,6 +129,10 @@ async fn create_spending(
     Extension(user): Extension<User>,
     Json(request): Json<CreateSpendingRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
+    if request.spent_cents < 0 {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
     let spent_at = DateTime::from_timestamp(request.spent_at, 0).ok_or(StatusCode::BAD_REQUEST)?;
 
     let mut db = state.db.lock().await;

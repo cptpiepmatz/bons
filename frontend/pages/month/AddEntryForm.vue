@@ -51,6 +51,7 @@ defineExpose({ isSaving, closeDropdown: categoryDropdown.close });
 const validEntry = computed(() => {
   if (!isSpentValid.value) return;
   if (!spent.value) return;
+  if (spent.value.toCents() < 0) return;
   if (!description.value?.trim()) return;
   if (!spentAt.value.isValid()) return;
   if (isSaving.value) return;
