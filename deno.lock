@@ -15,6 +15,7 @@
     "npm:@dicebear/styles@^10.6.0": "10.6.0",
     "npm:@fontsource-variable/inter@^5.3.0": "5.3.0",
     "npm:@phosphor-icons/vue@^2.2.1": "2.2.1_vue@3.5.43_typescript@6.0.3",
+    "npm:@resvg/resvg-wasm@2.6.2": "2.6.2",
     "npm:@types/yargs@^17.0.35": "17.0.35",
     "npm:@vitejs/plugin-vue@6.0.9": "6.0.9_vite@8.3.1_vue@3.5.43_typescript@6.0.3",
     "npm:@vue/compiler-sfc@^3.5.0": "3.5.43",
@@ -237,6 +238,9 @@
       "dependencies": [
         "vue"
       ]
+    },
+    "@resvg/resvg-wasm@2.6.2": {
+      "integrity": "sha512-FqALmHI8D4o6lk/LRWDnhw95z5eO+eAa6ORjVg09YRR7BkcM6oPHU9uyC0gtQG5vpFLvgpeU4+zEAz2H8APHNw=="
     },
     "@rolldown/binding-android-arm-eabi@1.2.11": {
       "integrity": "sha512-A5kXfGKvKWWZE0TtPrfsvT+q4Y5d1QG8gGUzpYjGydM+fARM9MuX90PrXYXe0XbsDVgyxxNzHo6giCj90bsFNw==",
@@ -1134,6 +1138,7 @@
       "npm:@dicebear/styles@^10.6.0",
       "npm:@fontsource-variable/inter@^5.3.0",
       "npm:@phosphor-icons/vue@^2.2.1",
+      "npm:@resvg/resvg-wasm@2.6.2",
       "npm:@vitejs/plugin-vue@6.0.9",
       "npm:bulma@1.0.4",
       "npm:dayjs@^1.11.23",

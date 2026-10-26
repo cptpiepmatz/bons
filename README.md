@@ -50,6 +50,24 @@ that same IPv4 address to avoid localhost IPv4/IPv6 fallback delays. Use
   `useAuth.ts`; month pages load spending through `useMonthSpending.ts` and save
   entries through `useCreateSpending.ts`.
 
+## Browser icons
+
+The app logo and browser icons share `logo/logo.svg` as their source. Run:
+
+```sh
+deno task build:favicon
+```
+
+The Deno script uses a WebAssembly SVG renderer and writes an SVG favicon, an
+ICO with 16, 32, and 48 pixel images, and a 180 pixel Apple touch icon to
+`frontend/generated/icons/`. The HTML references them as regular Vite assets
+with `?no-inline`, so production builds emit separate files with content hashes
+in `dist/assets/`. Changing the logo changes their URLs for cache invalidation.
+Generated icons are ignored by Git.
+
+Frontend development and builds run this task automatically. After editing the
+logo during development, rerun the task and refresh the browser to update icons.
+
 ## Development data
 
 Start development with:

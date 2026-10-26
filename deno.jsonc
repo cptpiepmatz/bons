@@ -7,7 +7,7 @@
     "dev:frontend": {
       "description": "Run the Vite development server",
       "command": "deno run -A vite --host 127.0.0.1",
-      "dependencies": ["build:categories"]
+      "dependencies": ["build:categories", "build:favicon"]
     },
     "dev:backend": {
       "description": "Recreate and seed the disposable development database, then run the backend",
@@ -31,7 +31,11 @@
     "build:frontend": {
       "description": "Build the frontend assets",
       "command": "deno run -A vite build",
-      "dependencies": ["build:bindings", "build:categories"]
+      "dependencies": ["build:bindings", "build:categories", "build:favicon"]
+    },
+    "build:favicon": {
+      "description": "Generate browser icons from logo/logo.svg",
+      "command": "deno run --allow-read --allow-write=frontend/generated/icons tools/generate_favicon.ts"
     },
     "build:categories": {
       "description": "Generate runtime categories and translations from the bindings",
@@ -107,6 +111,7 @@
     "@phosphor-icons/vue": "npm:@phosphor-icons/vue@^2.2.1",
     "@primp/primp": "jsr:@primp/primp@2.0.0-rc.1",
     "@primp/vue": "jsr:@primp/vue@2.0.0-rc.1",
+    "@resvg/resvg-wasm": "npm:@resvg/resvg-wasm@2.6.2",
     "@std/assert": "jsr:@std/assert@^1.0.0",
     "@std/expect": "jsr:@std/expect@^1.0.20",
     "@std/fs": "jsr:@std/fs@^1.0.24",
