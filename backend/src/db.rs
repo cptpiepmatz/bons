@@ -4,6 +4,7 @@ use std::{
 };
 
 use chrono::{DateTime, Duration, Month, TimeZone, Utc};
+use chrono_tz::Tz;
 use sqlx::{sqlite::SqliteConnectOptions, Connection, SqliteConnection};
 
 use crate::{
@@ -294,9 +295,10 @@ impl Db {
         &mut self,
         year: i32,
         month: Month,
+        timezone: Tz,
     ) -> sqlx::Result<Vec<Spending>> {
         let month = month.number_from_month();
-        let start = Utc
+        let start = timezone
             .with_ymd_and_hms(year, month, 1, 0, 0, 0)
             .single()
             .ok_or_else(|| sqlx::Error::Protocol("invalid month".into()))?;
@@ -305,7 +307,7 @@ impl Db {
         } else {
             (year, month + 1)
         };
-        let end = Utc
+        let end = timezone
             .with_ymd_and_hms(next_month_year, next_month, 1, 0, 0, 0)
             .single()
             .ok_or_else(|| sqlx::Error::Protocol("invalid month".into()))?;

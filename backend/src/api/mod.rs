@@ -3,7 +3,7 @@ mod auth;
 use std::str::FromStr;
 
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::{header::SET_COOKIE, HeaderValue, StatusCode},
     middleware,
     response::IntoResponse,
@@ -11,6 +11,7 @@ use axum::{
     Extension, Json, Router,
 };
 use chrono::{DateTime, Duration, Month, Utc};
+use chrono_tz::Tz;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -181,12 +182,17 @@ async fn delete_spending(
 async fn spending_for_month(
     State(state): State<AppState>,
     Path((year, month)): Path<(i32, String)>,
+    Query(query): Query<SpendingForMonthQuery>,
 ) -> Result<impl IntoResponse, StatusCode> {
     let month = Month::from_str(&month).map_err(|_| StatusCode::BAD_REQUEST)?;
+    let timezone = query
+        .timezone
+        .parse::<Tz>()
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
 
     let mut db = state.db.lock().await;
     let spending = db
-        .spending_for_month(year, month)
+        .spending_for_month(year, month, timezone)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -196,6 +202,11 @@ async fn spending_for_month(
             .map(SpendingResponse::from_spending)
             .collect::<Vec<_>>(),
     ))
+}
+
+#[derive(Deserialize)]
+struct SpendingForMonthQuery {
+    timezone: String,
 }
 
 #[derive(Serialize, TS)]

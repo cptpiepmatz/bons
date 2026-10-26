@@ -61,8 +61,11 @@ export class Api {
     month: Month,
     signal?: AbortSignal,
   ): Promise<SpendingResponse[]> {
+    const query = new URLSearchParams({
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    });
     return (await Api.request(
-      `/spending/${year}/${month}`,
+      `/spending/${year}/${month}?${query}`,
       undefined,
       signal,
     ))

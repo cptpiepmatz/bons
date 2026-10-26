@@ -36,6 +36,7 @@ base64 = "0.23.1"
 sha2 = "0.11.0"
 strum = { version = "0.28.0", features = ["derive"] }
 chrono = "0.4"
+chrono-tz = "0.10"
 
 [build-dependencies]
 quote = "1"
