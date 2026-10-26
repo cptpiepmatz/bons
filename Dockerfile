@@ -23,9 +23,7 @@ RUN mkdir /data
 FROM scratch AS runtime
 
 COPY --from=build /bons /usr/local/bin/bons
-COPY --from=build --chown=65532:65532 /data /data
 
-USER 65532:65532
 WORKDIR /data
 ENV BONS_DATABASE=/data/bons.sqlite
 VOLUME ["/data"]
