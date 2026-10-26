@@ -86,7 +86,7 @@ pub(super) fn session_cookie(token: impl AsRef<str>) -> String {
         .path("/")
         .http_only(true)
         .same_site(SameSite::Lax)
-        .secure(env::var_os("INSECURE_COOKIES").is_none())
+        .secure(env::var_os("BONS_INSECURE_COOKIES").is_none())
         .max_age(cookie::time::Duration::days(30))
         .build()
         .to_string()
@@ -102,8 +102,8 @@ mod tests {
     #[test]
     fn session_cookie_is_secure_by_default() {
         let _guard = ENV_LOCK.lock().unwrap();
-        let previous = env::var_os("INSECURE_COOKIES");
-        env::remove_var("INSECURE_COOKIES");
+        let previous = env::var_os("BONS_INSECURE_COOKIES");
+        env::remove_var("BONS_INSECURE_COOKIES");
 
         let cookie = session_cookie("token");
 
@@ -115,15 +115,15 @@ mod tests {
         assert!(cookie.contains("Max-Age=2592000"));
 
         if let Some(previous) = previous {
-            env::set_var("INSECURE_COOKIES", previous);
+            env::set_var("BONS_INSECURE_COOKIES", previous);
         }
     }
 
     #[test]
     fn session_cookie_can_be_insecure_for_local_development() {
         let _guard = ENV_LOCK.lock().unwrap();
-        let previous = env::var_os("INSECURE_COOKIES");
-        env::set_var("INSECURE_COOKIES", "1");
+        let previous = env::var_os("BONS_INSECURE_COOKIES");
+        env::set_var("BONS_INSECURE_COOKIES", "1");
 
         let cookie = session_cookie("token");
 
@@ -135,9 +135,9 @@ mod tests {
         assert!(cookie.contains("Max-Age=2592000"));
 
         if let Some(previous) = previous {
-            env::set_var("INSECURE_COOKIES", previous);
+            env::set_var("BONS_INSECURE_COOKIES", previous);
         } else {
-            env::remove_var("INSECURE_COOKIES");
+            env::remove_var("BONS_INSECURE_COOKIES");
         }
     }
 }

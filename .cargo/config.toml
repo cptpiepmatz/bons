@@ -1,4 +1,4 @@
 [env]
 DATABASE_URL = "sqlite://target/sqlx.sqlite"
-INSECURE_COOKIES = "1"
+BONS_INSECURE_COOKIES = "1"
 TS_RS_IMPORT_EXTENSION = "ts"

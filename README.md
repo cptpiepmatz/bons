@@ -21,7 +21,7 @@ The container listens on `0.0.0.0:2667` and stores its database at
 UID and GID `65532`; named volumes are initialized with the correct ownership.
 
 Put the app behind an HTTPS reverse proxy for production. Session cookies are
-Secure by default; for local HTTP only, add `-e INSECURE_COOKIES=1` to
+Secure by default; for local HTTP only, add `-e BONS_INSECURE_COOKIES=1` to
 `docker run`.
 
 The multi-stage build runs `deno task build` with Rust, musl, Deno, and
@@ -34,12 +34,13 @@ user, with no shell or build tools.
 ## Server configuration
 
 Configure the container or process through environment variables; no `.env` file
-is loaded.
+is loaded. All app-specific environment variables use the `BONS_` prefix.
 
-| Variable        | Required | Description                                                                                                |
-| --------------- | -------- | ---------------------------------------------------------------------------------------------------------- |
-| `BONS_CURRENCY` | No       | Overrides the server's built-in `EUR` currency default, for example with `USD`. Blank values are rejected. |
-| `BONS_DATABASE` | No       | Runtime SQLite database path. Defaults to `bons.sqlite`. Separate from SQLx's compile-time `DATABASE_URL`. |
+| Variable                | Required | Description                                                                                                     |
+| ----------------------- | -------- | --------------------------------------------------------------------------------------------------------------- |
+| `BONS_CURRENCY`         | No       | Overrides the server's built-in `EUR` currency default, for example with `USD`. Blank values are rejected.      |
+| `BONS_DATABASE`         | No       | Runtime SQLite database path. Defaults to `bons.sqlite`. Separate from SQLx's compile-time `DATABASE_URL`.      |
+| `BONS_INSECURE_COOKIES` | No       | Disables Secure session cookies when set (regardless of value). For local HTTP only; leave unset in production. |
 
 The server defaults to `EUR`, including when running the binary directly. Set
 `BONS_CURRENCY` at runtime to use a different currency.
@@ -186,5 +187,5 @@ visitors can stay on their selected month page, including after a reload. There
 is no logout endpoint yet.
 
 Session cookies are Secure by default. For local HTTP development,
-`.cargo/config.toml` sets `INSECURE_COOKIES=1` for Cargo commands; do not set it
-in production.
+`.cargo/config.toml` sets `BONS_INSECURE_COOKIES=1` for Cargo commands; do not
+set it in production.
