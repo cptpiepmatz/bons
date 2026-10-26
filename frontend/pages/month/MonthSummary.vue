@@ -6,13 +6,14 @@ import {
   PhPencilSimple,
 } from "@phosphor-icons/vue";
 import dayjs, { type Dayjs } from "dayjs";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import { SpendingResponse } from "../../../bindings/SpendingResponse";
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import { useAuth } from "../../composables/useAuth.ts";
 import { useCurrency } from "../../composables/useCurrency";
+import { useDropdown } from "../../composables/useDropdown.ts";
 import { categoryDisplayNames } from "../../generated/categories";
 import { Money } from "../../models/money";
 import { getMonth } from "../../models/month.ts";
@@ -39,8 +40,7 @@ const selectedSortOption = ref<SortOptions>("newest");
 
 // bindings
 const monthDateInput = ref<HTMLInputElement>();
-const isSortMenuActive = ref(false);
-const sortDropdown = ref<HTMLDivElement>();
+const sortDropdown = useDropdown();
 
 // derived state
 const sortedSpendingEntries = computed(() =>
@@ -84,23 +84,6 @@ function selectMonth() {
   if (!date.isValid()) return;
   return navigateMonth(date);
 }
-
-// reactive elements
-function closeSortMenuOnOutsideClick(event: MouseEvent) {
-  if (
-    event.target instanceof Node && !sortDropdown.value?.contains(event.target)
-  ) {
-    isSortMenuActive.value = false;
-  }
-}
-
-onMounted(() =>
-  document.addEventListener("click", closeSortMenuOnOutsideClick)
-);
-
-onUnmounted(() => {
-  document.removeEventListener("click", closeSortMenuOnOutsideClick);
-});
 </script>
 
 <template>
@@ -212,16 +195,16 @@ onUnmounted(() => {
         </span>
         <span class="level-right">
           <div
-            ref="sortDropdown"
+            :ref="sortDropdown.element"
             class="dropdown is-right"
-            :class="{ 'is-active': isSortMenuActive }"
+            :class="{ 'is-active': sortDropdown.isActive.value }"
           >
             <span class="dropdown-trigger">
               <button
                 type="button"
                 class="level is-gap-1"
-                :aria-expanded="isSortMenuActive"
-                @click="isSortMenuActive = !isSortMenuActive"
+                :aria-expanded="sortDropdown.isActive.value"
+                @click="sortDropdown.toggle"
               >
                 <span class="level-item is-size-7">
                   {{ sortOptionDisplayNames[selectedSortOption].de }}
@@ -237,7 +220,7 @@ onUnmounted(() => {
                   v-for="option in sortOptions"
                   :key="option"
                   class="dropdown-item"
-                  @click="selectedSortOption = option; isSortMenuActive = false"
+                  @click="selectedSortOption = option; sortDropdown.close()"
                 >
                   {{ sortOptionDisplayNames[option].de }}
                 </a>

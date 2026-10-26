@@ -11,6 +11,7 @@ import { computed, ref, watch } from "vue";
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import { useCreateSpending } from "../../composables/useCreateSpending.ts";
 import { useCurrency } from "../../composables/useCurrency.ts";
+import { useDropdown } from "../../composables/useDropdown.ts";
 import {
   categories,
   categoryDisplayNames,
@@ -32,7 +33,7 @@ const spentAt = ref(dayjs());
 // bindings
 const spentText = ref("");
 const isSpentValid = ref(true);
-const categoryMenu = ref<HTMLDivElement>();
+const categoryDropdown = useDropdown();
 const spentAtInputDate = ref<HTMLInputElement>();
 const spentAtInputText = ref<HTMLInputElement>();
 
@@ -66,7 +67,7 @@ const spentPlaceholder = computed(() => {
 // actions
 function selectCategory(category: Category) {
   selectedCategory.value = category;
-  categoryMenu.value?.hidePopover();
+  categoryDropdown.close();
 }
 
 async function submit() {
@@ -170,14 +171,20 @@ function onDescriptionInput(event: Event) {
           <div class="field has-addons">
             <div class="control is-expanded">
               <input type="hidden" name="category" :value="selectedCategory">
-              <div class="dropdown is-block">
+              <div
+                :ref="categoryDropdown.element"
+                class="dropdown is-block"
+                :class="{ 'is-active': categoryDropdown.isActive.value }"
+                @keydown.esc="categoryDropdown.close"
+              >
                 <div class="dropdown-trigger">
                   <button
                     id="category"
                     type="button"
                     class="button is-fullwidth"
                     aria-controls="category-dropdown"
-                    popovertarget="category-dropdown"
+                    :aria-expanded="categoryDropdown.isActive.value"
+                    @click="categoryDropdown.toggle"
                   >
                     <span class="icon is-small">
                       <CategoryIcon :category="selectedCategory" />
@@ -190,8 +197,7 @@ function onDescriptionInput(event: Event) {
                 </div>
                 <div
                   id="category-dropdown"
-                  ref="categoryMenu"
-                  popover="auto"
+                  v-show="categoryDropdown.isActive.value"
                   class="dropdown-content category-menu is-position-fixed is-overflow-y-auto"
                 >
                   <button
@@ -265,6 +271,7 @@ function onDescriptionInput(event: Event) {
 }
 
 .category-menu {
+  z-index: var(--bulma-dropdown-content-z, 20);
   position-anchor: --category-select;
   position-area: bottom center;
   position-try-fallbacks: flip-block;
