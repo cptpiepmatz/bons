@@ -3,20 +3,40 @@ import { PhPlus } from "@phosphor-icons/vue";
 import type { Dayjs } from "dayjs";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
+import type { SpendingResponse } from "../../../bindings/SpendingResponse.ts";
 import AppHeader from "../../components/AppHeader.vue";
 import { useMediaQuery } from "../../composables/useMediaQuery.ts";
 import { useMonthSpending } from "../../composables/useMonthSpending.ts";
+import { months } from "../../models/month.ts";
 import AddEntry from "./AddEntry.vue";
 import MonthSummary from "./MonthSummary.vue";
 
 const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 const { t } = useI18n();
+const router = useRouter();
 const isMobile = useMediaQuery("(max-width: 768px)");
 const addEntry = ref<InstanceType<typeof AddEntry>>();
 const { spendingEntries, isLoading, error, refresh } = useMonthSpending(() =>
   monthDate
 );
+
+async function onCreated(spending: SpendingResponse) {
+  // match the UTC month boundaries used by the backend's monthly query
+  const date = new Date(spending.spent_at * 1000);
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth();
+  if (monthDate.year() === year && monthDate.month() === month) {
+    await refresh();
+    return;
+  }
+
+  await router.push({
+    name: "month",
+    params: { year: String(year), month: months[month] },
+  });
+}
 </script>
 
 <style lang="scss" scoped>
@@ -128,7 +148,7 @@ const { spendingEntries, isLoading, error, refresh } = useMonthSpending(() =>
           />
         </div>
         <div class="column is-one-third">
-          <AddEntry ref="addEntry" :modal="isMobile" @created="refresh" />
+          <AddEntry ref="addEntry" :modal="isMobile" @created="onCreated" />
         </div>
       </div>
     </main>

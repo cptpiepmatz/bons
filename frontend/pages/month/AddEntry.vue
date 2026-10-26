@@ -3,11 +3,12 @@ import { PhPlusSquare, PhX } from "@phosphor-icons/vue";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
+import type { SpendingResponse } from "../../../bindings/SpendingResponse.ts";
 import AddEntryForm from "./AddEntryForm.vue";
 
 const { modal = false } = defineProps<{ modal?: boolean }>();
 const { t } = useI18n();
-const emit = defineEmits<{ created: [] }>();
+const emit = defineEmits<{ created: [spending: SpendingResponse] }>();
 const dialog = ref<HTMLDialogElement>();
 const form = ref<InstanceType<typeof AddEntryForm>>();
 const isSaving = computed(() => form.value?.isSaving ?? false);
@@ -31,9 +32,9 @@ function onDialogClick(event: MouseEvent) {
   ) close();
 }
 
-function onCreated() {
+function onCreated(spending: SpendingResponse) {
   close();
-  emit("created");
+  emit("created", spending);
 }
 
 watch(() => modal, close);

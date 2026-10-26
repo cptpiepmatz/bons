@@ -9,6 +9,7 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import type { Category } from "../../../bindings/Category.ts";
+import type { SpendingResponse } from "../../../bindings/SpendingResponse.ts";
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import { useCreateSpending } from "../../composables/useCreateSpending.ts";
 import { useCurrency } from "../../composables/useCurrency.ts";
@@ -22,7 +23,7 @@ import {
 import { Money } from "../../models/money.ts";
 import { suggestCategory } from "../../services/classifier.ts";
 
-const emit = defineEmits<{ created: [] }>();
+const emit = defineEmits<{ created: [spending: SpendingResponse] }>();
 const { t } = useI18n();
 const { locale, dateFormatter } = useLocale();
 const { create, isSaving, error } = useCreateSpending();
@@ -101,7 +102,7 @@ async function submit() {
   description.value = undefined;
   selectedCategory.value = "other";
   isSpentValid.value = true;
-  emit("created");
+  emit("created", created);
 }
 
 // reactive elements
