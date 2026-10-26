@@ -64,6 +64,7 @@ async function logout() {
         </div>
         <div id="user-dropdown" class="dropdown-menu">
           <div class="dropdown-content">
+            <div class="dropdown-item is-hidden-tablet">{{ userName }}</div>
             <button
               type="button"
               class="dropdown-item"
