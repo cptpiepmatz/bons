@@ -10,8 +10,8 @@ is loaded.
 | `BONS_CURRENCY` | No       | Overrides the server's built-in `EUR` currency default, for example with `USD`. Blank values are rejected. |
 | `BONS_DATABASE` | No       | Runtime SQLite database path. Defaults to `bons.sqlite`. Separate from SQLx's compile-time `DATABASE_URL`. |
 
-The server defaults to `EUR`, including when running the binary directly.
-Set `BONS_CURRENCY` at runtime to use a different currency.
+The server defaults to `EUR`, including when running the binary directly. Set
+`BONS_CURRENCY` at runtime to use a different currency.
 
 Known currency codes are generated at build time from Deno's
 `Intl.supportedValuesOf("currency")`; building requires `deno` on `PATH`.
@@ -26,15 +26,15 @@ required.
 
 ## Frontend data access
 
-The backend serves the Vite output from `dist/` at `/`, with `index.html` as
-the fallback for client-side routes. API routes remain separate; missing API
-paths and missing assets return `404`.
+The backend serves the Vite output from `dist/` at `/`, with `index.html` as the
+fallback for client-side routes. API routes remain separate; missing API paths
+and missing assets return `404`.
 
-Debug builds read `dist/` from disk. Release builds embed it into the executable,
-so no separate frontend files are needed at runtime. Build the frontend before
-compiling a release. `deno task build` builds the frontend followed by the release
-backend with embedded assets. `deno task dev` uses the debug backend and the Vite
-development server with its API proxy.
+Debug builds read `dist/` from disk. Release builds embed it into the
+executable, so no separate frontend files are needed at runtime. Build the
+frontend before compiling a release. `deno task build` builds the frontend
+followed by the release backend with embedded assets. `deno task dev` uses the
+debug backend and the Vite development server with its API proxy.
 
 The backend binds to `127.0.0.1:2667` by default, and the development proxy uses
 that same IPv4 address to avoid localhost IPv4/IPv6 fallback delays. Use
