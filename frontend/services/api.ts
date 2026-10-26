@@ -23,9 +23,9 @@ export class Api {
     path: string,
     body?: unknown,
     signal?: AbortSignal,
+    method = body === undefined ? "GET" : "POST",
   ): Promise<Response> {
     const url = `/api${path}`;
-    const method = body === undefined ? "GET" : "POST";
     const response = await fetch(url, {
       method,
       credentials: "same-origin",
@@ -73,6 +73,10 @@ export class Api {
     body: CreateSpendingRequest,
   ): Promise<SpendingResponse> {
     return (await Api.request("/spending", body)).json();
+  }
+
+  static async deleteSpending(id: number): Promise<void> {
+    await Api.request(`/spending/${id}`, undefined, undefined, "DELETE");
   }
 
   static async createUser(

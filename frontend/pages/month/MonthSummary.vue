@@ -3,16 +3,17 @@ import {
   PhCaretDown,
   PhCaretLeft,
   PhCaretRight,
-  PhPencilSimple,
+  PhTrash,
 } from "@phosphor-icons/vue";
 import dayjs, { type Dayjs } from "dayjs";
-import { computed, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import { SpendingResponse } from "../../../bindings/SpendingResponse";
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import { useAuth } from "../../composables/useAuth.ts";
 import { useCurrency } from "../../composables/useCurrency";
+import { useDeleteSpending } from "../../composables/useDeleteSpending.ts";
 import { useDropdown } from "../../composables/useDropdown.ts";
 import { categoryDisplayNames } from "../../generated/categories";
 import { Money } from "../../models/money";
@@ -30,17 +31,21 @@ const { monthDate, spendingEntries, isLoading, error } = defineProps<{
   isLoading: boolean;
   error?: string;
 }>();
-const emit = defineEmits<{ retry: [] }>();
+const emit = defineEmits<{ retry: []; deleted: [] }>();
+const { remove, clearError, isDeleting, error: deleteError } =
+  useDeleteSpending();
 const { currencyFormatter } = useCurrency();
 const { user } = useAuth();
 const router = useRouter();
 
 // state
 const selectedSortOption = ref<SortOptions>("newest");
+const spendingToDelete = ref<SpendingResponse>();
 
 // bindings
 const monthDateInput = ref<HTMLInputElement>();
 const sortDropdown = useDropdown();
+const deleteModal = ref<HTMLDialogElement>();
 
 // derived state
 const sortedSpendingEntries = computed(() =>
@@ -66,6 +71,26 @@ const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
 });
 
 // actions
+async function confirmDelete(spending: SpendingResponse) {
+  clearError();
+  spendingToDelete.value = spending;
+  await nextTick();
+  deleteModal.value?.showModal();
+}
+
+function closeDeleteModal() {
+  if (isDeleting.value) return;
+  deleteModal.value?.close();
+  spendingToDelete.value = undefined;
+}
+
+async function deleteSpending() {
+  if (!spendingToDelete.value) return;
+  if (!await remove(spendingToDelete.value.id)) return;
+  closeDeleteModal();
+  emit("deleted");
+}
+
 function navigateMonth(date: Dayjs) {
   return router.push({
     name: "month",
@@ -271,9 +296,14 @@ function selectMonth() {
               {{ currencyFormatter && Money.fromCents(spending.spent_cents).format(currencyFormatter) }}
             </td>
               <td class="is-narrow is-vcentered">
-                <a class="icon has-text-current">
-                  <PhPencilSimple />
-                </a>
+                <button
+                  type="button"
+                  class="icon delete-spending"
+                  :aria-label="`${spending.description} löschen`"
+                  @click="confirmDelete(spending)"
+                >
+                  <PhTrash />
+                </button>
               </td>
             </tr>
           </tbody>
@@ -281,6 +311,70 @@ function selectMonth() {
       </div>
     </div>
   </div>
+  <Teleport to="body">
+    <dialog
+      ref="deleteModal"
+      class="modal delete-modal"
+      :class="{ 'is-active': spendingToDelete }"
+      aria-labelledby="delete-spending-title"
+      aria-describedby="delete-spending-question"
+      @cancel.prevent="closeDeleteModal"
+    >
+      <div class="modal-background" @click="closeDeleteModal"></div>
+      <div v-if="spendingToDelete" class="modal-card">
+        <header class="modal-card-head">
+          <p id="delete-spending-title"
+            class="modal-card-title">Ausgabe löschen</p>
+          <button type="button" class="delete" aria-label="Schließen"
+            :disabled="isDeleting" @click="closeDeleteModal"></button>
+        </header>
+        <section class="modal-card-body">
+          <p id="delete-spending-question"
+            class="mb-4">Möchtest du diese Ausgabe wirklich löschen?</p>
+          <div
+            class="delete-spending-heading has-background-primary-light has-radius-normal p-4 mb-5">
+            <span
+              class="icon is-large is-flex-shrink-0 has-text-primary">
+              <CategoryIcon :category="spendingToDelete.category"
+                size="2.5em" />
+            </span>
+            <h3
+              class="title is-4 has-text-dark has-text-centered mb-0">{{ spendingToDelete.description }}</h3>
+          </div>
+          <div class="columns is-justify-content-space-around">
+            <div class="column is-narrow">
+              <p class="has-text-weight-semibold">Betrag</p>
+              <p>{{ currencyFormatter && Money.fromCents(spendingToDelete.spent_cents).format(currencyFormatter) }}</p>
+            </div>
+            <div class="column is-narrow">
+              <p class="has-text-weight-semibold">Datum</p>
+              <p>{{ spentAtFormatter.format(dayjs.unix(spendingToDelete.spent_at).toDate()) }}</p>
+            </div>
+            <div class="column is-narrow">
+              <p class="has-text-weight-semibold">Eingetragen von</p>
+              <p>{{ spendingToDelete.user_id === user?.id ? user.name : `User ${spendingToDelete.user_id}` }}</p>
+            </div>
+            <div class="column is-narrow">
+              <p class="has-text-weight-semibold">Kategorie</p>
+              <p>{{ categoryDisplayNames[spendingToDelete.category].de }}</p>
+            </div>
+          </div>
+          <p v-if="deleteError" class="help is-danger mt-3" role="alert">
+            Die Ausgabe konnte nicht gelöscht werden. {{ deleteError }}
+          </p>
+        </section>
+        <footer class="modal-card-foot is-justify-content-flex-end">
+          <div class="buttons">
+            <button type="button" class="button" autofocus :disabled="isDeleting"
+              @click="closeDeleteModal">Abbrechen</button>
+            <button type="button" class="button is-danger"
+              :class="{ 'is-loading': isDeleting }" :disabled="isDeleting"
+              @click="deleteSpending">Löschen</button>
+          </div>
+        </footer>
+      </div>
+    </dialog>
+  </Teleport>
 </template>
 
 <style scoped lang="scss">
@@ -290,5 +384,33 @@ function selectMonth() {
 
 .spending-description {
   font-size: 0.9em;
+}
+
+.delete-spending {
+  color: currentColor;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--bulma-danger);
+  }
+}
+
+.delete-modal {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.delete-spending-heading {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, auto) 1rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
 }
 </style>

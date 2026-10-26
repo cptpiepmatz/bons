@@ -57,6 +57,7 @@ const { spendingEntries, isLoading, error, refresh } = useMonthSpending(() =>
             :is-loading="isLoading"
             :error="error"
             @retry="refresh"
+            @deleted="refresh"
           />
         </div>
         <div class="column is-one-third">
