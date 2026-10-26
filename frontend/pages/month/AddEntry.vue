@@ -20,30 +20,37 @@ import { suggestCategory } from "../../services/classifier.ts";
 
 import type { Category } from "../../../bindings/Category.ts";
 
-const { monthDate } = defineProps<{ monthDate: Dayjs }>();
 const emit = defineEmits<{ created: [] }>();
 const { create, isSaving, error } = useCreateSpending();
-const spentText = ref("");
+
+// entry values
 const spent = ref<Money>();
 const description = ref<string>();
 const selectedCategory = ref<Category>("other");
 const spentAt = ref(dayjs());
 
-watch(() => monthDate, (date) => {
-  spentAt.value = date.isSame(dayjs(), "month")
-    ? dayjs()
-    : date.startOf("month");
-}, { immediate: true });
-
+// bindings
+const spentText = ref("");
 const isSpentValid = ref(true);
 const categoryMenu = ref<HTMLDivElement>();
 const spentAtInputDate = ref<HTMLInputElement>();
 const spentAtInputText = ref<HTMLInputElement>();
 
-const entryIsValid = computed(() =>
-  isSpentValid.value && !!spent.value && !!description.value?.trim() &&
-  spentAt.value.isValid()
-);
+// derived state
+const validEntry = computed(() => {
+  if (!isSpentValid.value) return;
+  if (!spent.value) return;
+  if (!description.value?.trim()) return;
+  if (!spentAt.value.isValid()) return;
+  if (isSaving.value) return;
+  return {
+    isSpentValid: isSpentValid.value,
+    spent: spent.value,
+    description: description.value,
+    spentAt: spentAt.value,
+    isSaving: isSaving.value,
+  };
+});
 
 const { currencySymbol, currencyFormatter } = useCurrency();
 const spentPlaceholder = computed(() => {
@@ -56,6 +63,31 @@ const spentPlaceholder = computed(() => {
     .join("");
 });
 
+// actions
+function selectCategory(category: Category) {
+  selectedCategory.value = category;
+  categoryMenu.value?.hidePopover();
+}
+
+async function submit() {
+  if (!validEntry.value) return;
+  const created = await create({
+    spent_cents: validEntry.value.spent.toCents(),
+    description: validEntry.value.description.trim(),
+    category: selectedCategory.value,
+    spent_at: spentAt.value.unix(),
+  });
+  if (!created) return;
+
+  spentText.value = "";
+  spent.value = undefined;
+  description.value = undefined;
+  selectedCategory.value = "other";
+  isSpentValid.value = true;
+  emit("created");
+}
+
+// reactive elements
 function onSpentInput(event: Event) {
   const element = event.target as HTMLInputElement;
   isSpentValid.value = element.validity.valid;
@@ -75,35 +107,10 @@ function onSpentInput(event: Event) {
   }
 }
 
-function selectCategory(category: Category) {
-  selectedCategory.value = category;
-  categoryMenu.value?.hidePopover();
-}
-
 function onDescriptionInput(event: Event) {
   const value = (event.target as HTMLInputElement).value;
   description.value = value;
   selectedCategory.value = suggestCategory(value)?.category ?? "other";
-}
-
-async function submit() {
-  if (
-    !entryIsValid.value || !spent.value || !description.value || isSaving.value
-  ) return;
-  const created = await create({
-    spent_cents: spent.value.toCents(),
-    description: description.value.trim(),
-    category: selectedCategory.value,
-    spent_at: spentAt.value.unix(),
-  });
-  if (!created) return;
-
-  spentText.value = "";
-  spent.value = undefined;
-  description.value = undefined;
-  selectedCategory.value = "other";
-  isSpentValid.value = true;
-  emit("created");
 }
 </script>
 
@@ -175,8 +182,9 @@ async function submit() {
                     <span class="icon is-small">
                       <CategoryIcon :category="selectedCategory" />
                     </span>
-                    <span
-                      class="is-flex-grow-1 has-text-left">{{ categoryDisplayNames[selectedCategory].de }}</span>
+                    <span class="is-flex-grow-1 has-text-left">
+                      {{ categoryDisplayNames[selectedCategory].de }}
+                    </span>
                     <span class="icon is-small"><PhCaretDown /></span>
                   </button>
                 </div>
@@ -243,7 +251,7 @@ async function submit() {
       </p>
         <button type="submit" class="button is-primary is-fullwidth"
           :class="{ 'is-loading': isSaving }"
-          :disabled="!entryIsValid || isSaving">
+          :disabled="!validEntry">
         Ausgaben hinzufügen
       </button>
       </fieldset>
