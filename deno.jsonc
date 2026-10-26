@@ -105,6 +105,7 @@
     }
   },
   "imports": {
+    "@budarin/vite-plugin-webmanifest": "npm:@budarin/vite-plugin-webmanifest@1.0.27",
     "@dicebear/core": "npm:@dicebear/core@^10.7.0",
     "@dicebear/styles": "npm:@dicebear/styles@^10.6.0",
     "@fontsource-variable/inter": "npm:@fontsource-variable/inter@^5.3.0",

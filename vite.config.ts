@@ -1,9 +1,10 @@
+import { webmanifestPlugin } from "@budarin/vite-plugin-webmanifest";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
 
 export default defineConfig({
   root: "frontend",
-  plugins: [vue()],
+  plugins: [vue(), webmanifestPlugin()],
   css: {
     preprocessorOptions: {
       scss: {

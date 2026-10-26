@@ -59,14 +59,33 @@ deno task build:favicon
 ```
 
 The Deno script uses a WebAssembly SVG renderer and writes an SVG favicon, an
-ICO with 16, 32, and 48 pixel images, and a 180 pixel Apple touch icon to
-`frontend/generated/icons/`. The HTML references them as regular Vite assets
-with `?no-inline`, so production builds emit separate files with content hashes
-in `dist/assets/`. Changing the logo changes their URLs for cache invalidation.
-Generated icons are ignored by Git.
+ICO with 16, 32, and 48 pixel images, a 180 pixel Apple touch icon, and 192/512
+pixel PWA icons to `frontend/generated/icons/`. The HTML references them as
+regular Vite assets with `?no-inline`, so production builds emit separate files
+with content hashes in `dist/assets/`. Changing the logo changes their URLs for
+cache invalidation. Generated icons are ignored by Git.
 
 Frontend development and builds run this task automatically. After editing the
 logo during development, rerun the task and refresh the browser to update icons.
+
+## Install on a phone
+
+Serve bons over HTTPS to install it on a phone. On iPhone, open the site in
+Safari and choose **Share → Add to Home Screen** (enable **Open as Web App** if
+shown). On Android, open it in Chrome and use **Install app** or **Add to Home
+screen** in the browser menu.
+
+The installed app opens at `/` in its own window, with the normal login flow. It
+still needs an internet connection; no service worker or offline cache is added.
+Browser installation UI and availability vary by device.
+
+`frontend/manifest.webmanifest` defines the app's installation settings. The
+`@budarin/vite-plugin-webmanifest` plugin emits the manifest with a content hash
+at the build output root, updates its HTML link, and hashes its generated icons
+in `dist/assets/`. The manifest's stable `id` identifies the installed app even
+when the manifest URL changes. Local development on `localhost` or `127.0.0.1`
+is also allowed; plain HTTP on a phone's LAN address does not meet installation
+requirements.
 
 ## Development data
 

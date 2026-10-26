@@ -58,4 +58,10 @@ await Deno.writeFile(
   new URL("apple-touch-icon.png", output),
   renderPng(180, "white"),
 );
-console.log("Generated SVG, ICO (16/32/48px), and Apple touch icon (180px).");
+for (const size of [192, 512]) {
+  await Deno.writeFile(
+    new URL(`app-${size}.png`, output),
+    renderPng(size, "white"),
+  );
+}
+console.log("Generated favicons, Apple touch icon, and PWA icons (192/512px).");
