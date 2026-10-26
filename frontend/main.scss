@@ -7,6 +7,8 @@
 
 :root {
   --content-width: 1000px;
+  // match native controls and scrollbars to the browser's preferred theme
+  color-scheme: light dark;
 }
 
 .content-width {
@@ -38,12 +40,5 @@ body,
     @media (prefers-color-scheme: dark) {
       background-color: var(--bulma-black-ter);
     }
-  }
-}
-
-// ensure that we get dark scrollbars on dark mode
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
   }
 }
