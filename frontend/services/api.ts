@@ -52,6 +52,10 @@ export class Api {
     return (await Api.request("/me")).json();
   }
 
+  static async logout(): Promise<void> {
+    await Api.request("/logout", {});
+  }
+
   static async getSpendingForMonth(
     year: number,
     month: Month,
