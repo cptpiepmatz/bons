@@ -60,6 +60,7 @@ pub struct Spending {
     pub description: String,
     pub category: Category,
     pub user_id: i64,
+    pub user_name: String,
     pub spent_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
 }
@@ -276,6 +277,7 @@ impl Db {
             description,
             category,
             user_id: user.id,
+            user_name: user.name.clone(),
             spent_at,
             created_at,
         })
@@ -311,16 +313,18 @@ impl Db {
         let rows = sqlx::query!(
             r#"
                 SELECT
-                    id,
-                    spent,
-                    description,
-                    category,
-                    user_id,
-                    spent_at,
-                    created_at
+                    spending.id,
+                    spending.spent,
+                    spending.description,
+                    spending.category,
+                    spending.user_id,
+                    users.name AS user_name,
+                    spending.spent_at,
+                    spending.created_at
                 FROM spending
-                WHERE spent_at >= ? AND spent_at < ?
-                ORDER BY spent_at ASC, id ASC
+                INNER JOIN users ON users.id = spending.user_id
+                WHERE spending.spent_at >= ? AND spending.spent_at < ?
+                ORDER BY spending.spent_at ASC, spending.id ASC
             "#,
             start.timestamp(),
             end.timestamp()
@@ -345,6 +349,7 @@ impl Db {
                 description: row.description,
                 category,
                 user_id: row.user_id,
+                user_name: row.user_name,
                 spent_at,
                 created_at,
             });

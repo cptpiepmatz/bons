@@ -233,6 +233,7 @@ struct SpendingResponse {
     category: Category,
     #[ts(type = "number")]
     user_id: i64,
+    user_name: String,
     #[ts(type = "number")]
     spent_at: i64,
     #[ts(type = "number")]
@@ -247,6 +248,7 @@ impl SpendingResponse {
             description: spending.description.clone(),
             category: spending.category,
             user_id: spending.user_id,
+            user_name: spending.user_name.clone(),
             spent_at: spending.spent_at.timestamp(),
             created_at: spending.created_at.timestamp(),
         }

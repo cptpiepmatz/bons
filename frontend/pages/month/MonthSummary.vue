@@ -12,7 +12,6 @@ import { useRouter } from "vue-router";
 
 import { SpendingResponse } from "../../../bindings/SpendingResponse";
 import CategoryIcon from "../../components/CategoryIcon.vue";
-import { useAuth } from "../../composables/useAuth.ts";
 import { useCurrency } from "../../composables/useCurrency";
 import { useDeleteSpending } from "../../composables/useDeleteSpending.ts";
 import { useDropdown } from "../../composables/useDropdown.ts";
@@ -40,7 +39,6 @@ const { locale, monthFormatter, shortDateFormatter: spentAtFormatter } =
 const { remove, clearError, isDeleting, error: deleteError } =
   useDeleteSpending();
 const { currencyFormatter } = useCurrency();
-const { user } = useAuth();
 const router = useRouter();
 
 // state
@@ -288,7 +286,7 @@ function selectMonth() {
                     <span class="level-left is-gap-1">
                       <span>{{ spentAtFormatter.format(dayjs.unix(spending.spent_at).toDate()) }}</span>
                       <span>&middot;</span>
-                      <span>{{ spending.user_id === user?.id ? user.name : t("common.user", { id: spending.user_id }) }}</span>
+                      <span>{{ spending.user_name }}</span>
                       <span class="spending-category">&middot;</span>
                       <span
                         class="spending-category">{{ categoryDisplayNames[spending.category][locale] }}</span>
@@ -364,7 +362,7 @@ function selectMonth() {
             <div class="column is-narrow">
               <p
                 class="has-text-weight-semibold">{{ t("common.enteredBy") }}</p>
-              <p>{{ spendingToDelete.user_id === user?.id ? user.name : t("common.user", { id: spendingToDelete.user_id }) }}</p>
+              <p>{{ spendingToDelete.user_name }}</p>
             </div>
             <div class="column is-narrow">
               <p class="has-text-weight-semibold">{{ t("common.category") }}</p>
