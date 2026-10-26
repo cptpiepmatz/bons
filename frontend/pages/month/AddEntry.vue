@@ -116,7 +116,7 @@ function onDescriptionInput(event: Event) {
 </script>
 
 <template>
-  <div class="card">
+  <div class="card" @scroll="categoryDropdown.close">
     <form class="card-content" @submit.prevent="submit">
       <fieldset :disabled="isSaving">
         <div class="block mb-2">

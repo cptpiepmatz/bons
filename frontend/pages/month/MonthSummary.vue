@@ -87,7 +87,7 @@ function selectMonth() {
 </script>
 
 <template>
-  <div class="card" style="min-height: 100%;">
+  <div class="card" style="min-height: 100%;" @scroll="sortDropdown.close">
     <div class="card-content pb-1">
       <div class="is-flex is-flex-direction-column is-align-items-center">
         <div class="field has-addons">
