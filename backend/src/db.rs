@@ -281,6 +281,13 @@ impl Db {
         })
     }
 
+    pub async fn delete_spending(&mut self, id: i64) -> sqlx::Result<bool> {
+        let result = sqlx::query!("DELETE FROM spending WHERE id = ?", id)
+            .execute(&mut self.conn)
+            .await?;
+        Ok(result.rows_affected() > 0)
+    }
+
     pub async fn spending_for_month(
         &mut self,
         year: i32,

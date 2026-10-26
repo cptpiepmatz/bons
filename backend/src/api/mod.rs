@@ -7,7 +7,7 @@ use axum::{
     http::{header::SET_COOKIE, HeaderValue, StatusCode},
     middleware,
     response::IntoResponse,
-    routing::{get, post},
+    routing::{delete, get, post},
     Extension, Json, Router,
 };
 use chrono::{DateTime, Duration, Month, Utc};
@@ -28,6 +28,7 @@ pub fn router(state: AppState) -> Router<AppState> {
         .route("/me", get(current_user))
         .route("/users", post(create_user))
         .route("/spending", post(create_spending))
+        .route("/spending/{id}", delete(delete_spending))
         .route("/spending/{year}/{month}", get(spending_for_month))
         .route_layer(middleware::from_fn_with_state(state, auth::require_session));
 
@@ -154,6 +155,23 @@ struct CreateSpendingRequest {
     category: Category,
     #[ts(type = "number")]
     spent_at: i64,
+}
+
+async fn delete_spending(
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
+) -> Result<StatusCode, StatusCode> {
+    let mut db = state.db.lock().await;
+    let deleted = db
+        .delete_spending(id)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    if deleted {
+        Ok(StatusCode::NO_CONTENT)
+    } else {
+        Err(StatusCode::NOT_FOUND)
+    }
 }
 
 async fn spending_for_month(
