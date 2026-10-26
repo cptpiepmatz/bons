@@ -1,0 +1,20 @@
+# Version control and editor settings
+.git
+.vscode
+
+# Generated files
+.sqlx
+bindings
+dist
+frontend/generated
+
+# Dependencies and build caches
+frontend/.vite
+node_modules
+target
+
+# Local data and secrets
+**/.env
+**/.env.*
+**/*.sqlite
+**/*.sqlite-*

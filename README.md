@@ -1,5 +1,36 @@
 # Bons
 
+## Docker
+
+Build and run with a persistent SQLite volume:
+
+```sh
+docker build -t bons .
+docker run -d --name bons -p 2667:2667 -v bons-data:/data bons
+```
+
+Create your first admin and save the access key printed by this command:
+
+```sh
+docker exec bons bons create user "Your name" --admin
+```
+
+The container listens on `0.0.0.0:2667` and stores its database at
+`/data/bons.sqlite`. Migrations run automatically on startup. Use
+`-e BONS_CURRENCY=USD` to override the currency. Bind mounts must be writable by
+UID and GID `65532`; named volumes are initialized with the correct ownership.
+
+Put the app behind an HTTPS reverse proxy for production. Session cookies are
+Secure by default; for local HTTP only, add `-e INSECURE_COOKIES=1` to
+`docker run`.
+
+The multi-stage build runs `deno task build` with Rust, musl, Deno, and
+`sqlx-cli`. Docker caches the build-tool installation, but source changes
+rebuild the app without additional cache mounts. The final `scratch` image
+contains only the statically linked, stripped executable (including frontend
+assets and migrations) and a writable `/data` directory. It runs as a non-root
+user, with no shell or build tools.
+
 ## Server configuration
 
 Configure the container or process through environment variables; no `.env` file
