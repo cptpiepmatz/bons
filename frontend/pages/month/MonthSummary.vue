@@ -23,31 +23,6 @@ import {
 } from "../../models/sortOptions";
 import { summarizeSpending } from "../../models/spendingSummary.ts";
 
-const { currencyFormatter } = useCurrency();
-const { user } = useAuth();
-const router = useRouter();
-
-const monthDateInput = ref<HTMLInputElement>();
-const selectedSortOption = ref<SortOptions>("newest");
-const isSortMenuActive = ref(false);
-const sortDropdown = ref<HTMLDivElement>();
-
-function closeSortMenuOnOutsideClick(event: MouseEvent) {
-  if (
-    event.target instanceof Node && !sortDropdown.value?.contains(event.target)
-  ) {
-    isSortMenuActive.value = false;
-  }
-}
-
-onMounted(() => {
-  document.addEventListener("click", closeSortMenuOnOutsideClick);
-});
-
-onUnmounted(() => {
-  document.removeEventListener("click", closeSortMenuOnOutsideClick);
-});
-
 const { monthDate, spendingEntries, isLoading, error } = defineProps<{
   monthDate: Dayjs;
   spendingEntries: readonly SpendingResponse[];
@@ -55,26 +30,19 @@ const { monthDate, spendingEntries, isLoading, error } = defineProps<{
   error?: string;
 }>();
 const emit = defineEmits<{ retry: [] }>();
+const { currencyFormatter } = useCurrency();
+const { user } = useAuth();
+const router = useRouter();
 
-function navigateMonth(date: Dayjs) {
-  return router.push({
-    name: "month",
-    params: {
-      year: date.format("YYYY"),
-      month: getMonth(date),
-    },
-  });
-}
+// state
+const selectedSortOption = ref<SortOptions>("newest");
 
-function selectMonth() {
-  const value = monthDateInput.value?.value;
-  if (!value) return router.push("/");
+// bindings
+const monthDateInput = ref<HTMLInputElement>();
+const isSortMenuActive = ref(false);
+const sortDropdown = ref<HTMLDivElement>();
 
-  const date = dayjs(value, "YYYY-MM", true);
-  if (!date.isValid()) return;
-  return navigateMonth(date);
-}
-
+// derived state
 const sortedSpendingEntries = computed(() =>
   [...spendingEntries].sort((a, b) => {
     switch (selectedSortOption.value) {
@@ -95,6 +63,43 @@ const summary = computed(() => summarizeSpending(spendingEntries));
 const spentAtFormatter = new Intl.DateTimeFormat("de-DE", {
   day: "numeric",
   month: "short",
+});
+
+// actions
+function navigateMonth(date: Dayjs) {
+  return router.push({
+    name: "month",
+    params: {
+      year: date.format("YYYY"),
+      month: getMonth(date),
+    },
+  });
+}
+
+function selectMonth() {
+  const value = monthDateInput.value?.value;
+  if (!value) return router.push("/");
+
+  const date = dayjs(value, "YYYY-MM", true);
+  if (!date.isValid()) return;
+  return navigateMonth(date);
+}
+
+// reactive elements
+function closeSortMenuOnOutsideClick(event: MouseEvent) {
+  if (
+    event.target instanceof Node && !sortDropdown.value?.contains(event.target)
+  ) {
+    isSortMenuActive.value = false;
+  }
+}
+
+onMounted(() =>
+  document.addEventListener("click", closeSortMenuOnOutsideClick)
+);
+
+onUnmounted(() => {
+  document.removeEventListener("click", closeSortMenuOnOutsideClick);
 });
 </script>
 
