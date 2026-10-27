@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PhPlus } from "@phosphor-icons/vue";
 import type { Dayjs } from "dayjs";
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
@@ -37,6 +37,9 @@ async function onCreated(spending: SpendingResponse) {
     params: { year: String(year), month: months[month] },
   });
 }
+
+onMounted(() => document.addEventListener("visibilitychange", refresh));
+onUnmounted(() => document.addEventListener("visibilitychange", refresh));
 </script>
 
 <style lang="scss" scoped>
