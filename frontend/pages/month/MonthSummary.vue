@@ -338,17 +338,22 @@ function selectMonth() {
             :disabled="isDeleting" @click="closeDeleteModal"></button>
         </header>
         <section class="modal-card-body">
-          <p id="delete-spending-question"
-            class="mb-4">{{ t("spending.deleteQuestion") }}</p>
-          <div
-            class="delete-spending-heading has-background-primary-light has-radius-normal p-4 mb-5">
+          <p id="delete-spending-question" class="mb-4">
+            {{ t("spending.deleteQuestion") }}
+          </p>
+          <div class="
+            delete-spending-heading
+            has-background-primary-light
+            has-radius-normal p-4 mb-5
+          ">
             <span
               class="icon is-large is-flex-shrink-0 has-text-primary">
               <CategoryIcon :category="spendingToDelete.category"
                 size="2.5em" />
             </span>
-            <h3
-              class="title is-4 has-text-dark has-text-centered mb-0">{{ spendingToDelete.description }}</h3>
+            <h3 class="title is-4 has-text-dark has-text-centered mb-0">
+              {{ spendingToDelete.description }}
+            </h3>
           </div>
           <div class="columns is-justify-content-space-around">
             <div class="column is-narrow">
@@ -375,12 +380,20 @@ function selectMonth() {
         </section>
         <footer class="modal-card-foot is-justify-content-flex-end">
           <div class="buttons">
-            <button type="button" class="button" autofocus
+            <button
+              type="button"
+              class="button"
+              autofocus
               :disabled="isDeleting"
-              @click="closeDeleteModal">{{ t("common.cancel") }}</button>
-            <button type="button" class="button is-danger"
-              :class="{ 'is-loading': isDeleting }" :disabled="isDeleting"
-              @click="deleteSpending">{{ t("common.delete") }}</button>
+              @click="closeDeleteModal"
+            >{{ t("common.cancel") }}</button>
+            <button
+              type="button"
+              class="button is-danger"
+              :class="{ 'is-loading': isDeleting }"
+              :disabled="isDeleting"
+              @click="deleteSpending"
+            >{{ t("common.delete") }}</button>
           </div>
         </footer>
       </div>
