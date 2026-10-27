@@ -13,6 +13,7 @@ import type { SpendingResponse } from "../../../bindings/SpendingResponse.ts";
 import CategoryIcon from "../../components/CategoryIcon.vue";
 import { useCreateSpending } from "../../composables/useCreateSpending.ts";
 import { useCurrency } from "../../composables/useCurrency.ts";
+import { useDayChange } from "../../composables/useDayChange.ts";
 import { useDropdown } from "../../composables/useDropdown.ts";
 import { useLocale } from "../../composables/useLocale.ts";
 import { useMediaQuery } from "../../composables/useMediaQuery.ts";
@@ -131,6 +132,8 @@ function onDescriptionInput(event: Event) {
   description.value = value;
   selectedCategory.value = suggestCategory(value)?.category ?? "other";
 }
+
+useDayChange(() => spentAt.value = dayjs());
 </script>
 
 <template>
